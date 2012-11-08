@@ -1,0 +1,51 @@
+<div id="groups">
+<table>
+<thead>
+    <tr>
+		<th></th>
+	{foreach item=group from=$groups}
+        <th class="tGroup cmTrigger" id="{$group->id}">{$group->name}</th>
+	{/foreach}
+    </tr>
+</thead>
+<tbody>
+{foreach from=$modules key=module item=title}
+	<tr>
+		<td colspan="{$count}"><strong>{$title}</strong></td>
+	</tr>
+	{foreach key=name item=right from=$names[$module]}
+    <tr>
+		<td>{$right}</td>
+		{foreach key=id item=group from=$groups}
+        <td>{if $permission == true}<a href="form/group/activate/{$id}.html?right={$module}:{$name}" class="toggle {if $rights[$module][$name][$id] === true}active{/if}">{/if}<img src="images/buttons/button_{if $rights[$module][$name][$id] === true}1{else}0{/if}.png" />{if $permissions.activate === true}</a>{/if}</td>
+		{/foreach}
+    </tr>
+	{/foreach}
+{/foreach}
+</tbody>
+</table>
+{if $permissions.delete === true}
+{literal}
+<script>
+$(document).ready(function() {
+	$('#groups').find('th.tGroup').contextMenu({
+		menu: 'groupMenu'
+	}, function($link, $el) {
+		$link.url().attr('file', $el.attr('id')+'.html');
+		openDialog($link);
+	});
+})
+</script>
+{/literal}
+{/if}
+</div>
+{if $call != 'load'}
+	{if $permissions.create === true}
+<a class="dialog button form" href="admin/group/create/?width=500&height=200" title="Gruppe hinzufügen">Gruppe hinzufügen</a>
+	{/if}
+	{if $permissions.delete === true}
+<ul id="groupMenu" class="contextMenu">
+    <li class="delete"><a href="admin/group/delete/?width=350&height=150" class="delete">Löschen</a></li>
+</ul>
+	{/if}
+{/if}

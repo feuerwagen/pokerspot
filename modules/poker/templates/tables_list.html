@@ -1,0 +1,20 @@
+<div>
+<h3>Tische</h3>
+<ul>
+{foreach from=$tables item=t key=id}
+	<li class="{if $t === $current}active{/if}" id="ptable{$id}" data-idtable="{$id}">
+		{if $t->active === true}<span class="unread">&bull;</span>{/if}
+		<h5><a href="#">{$t->title}</a></h5>
+		Plätze: {$t->seats} ({$t->seats - $t->players|@count} frei) – Blinds: {$t->blinds.small}/{$t->blinds.big}
+	</li>
+{/foreach}
+</ul>
+</div>
+{literal}
+<script>
+$(document).ready(function() {	
+	// load first table into main window
+	//$('#pokertable').poker($('#sidebar').find('li.active').data('idtable'));
+});
+</script>
+{/literal}

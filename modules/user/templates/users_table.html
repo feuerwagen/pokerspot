@@ -1,0 +1,49 @@
+{if $call != 'load'}
+<div id="users">
+{/if}
+<table>
+<thead>
+    <tr>
+        <th>Benutzer</th>
+        <th>Name</th>
+        <th>E-Mail</th>
+        <th>Gruppe</th>
+    </tr>
+</thead>
+<tbody>
+{foreach item=user from=$users}
+    <tr class="tUser cmTrigger" id="{$user->username}">
+        <td>{$user->username}</td>
+        <td>{$user->realname}</td>
+        <td>{$user->email}</td>
+        <td>{$user->status}</td>
+    </tr>
+{/foreach}
+</tbody>
+</table>
+{if $permissions.update === true || $permissions.delete === true}
+{literal}
+<script>
+$(document).ready(function() {
+	$('#users').find('tr.tUser').contextMenu({
+		menu: 'userMenu'
+	}, function($link, $el) {
+		$link.url().attr('file', $el.attr('id')+'.html');
+		openDialog($link);
+	});
+})
+</script>
+{/literal}
+{/if}
+{if $call != 'load'}
+</div>
+{if $permissions.create === true}
+<a class="dialog button form" href="admin/user/create/?width=500&height=500" title="Benutzer hinzufügen">Benutzer hinzufügen</a>
+{/if}
+{if $permissions.update === true || $permissions.delete === true}
+<ul id="userMenu" class="contextMenu">
+    {if $permissions.update === true}<li class="edit"><a href="admin/user/update/?width=500&height=500" class="form" title="Benutzer bearbeiten">Bearbeiten</a></li>{/if}
+    {if $permissions.delete === true}<li class="delete"><a href="admin/user/delete/?width=350&height=150" class="delete">Löschen</a></li>{/if}
+</ul>
+{/if}
+{/if}

@@ -1,0 +1,148 @@
+/************************************************************
+*    beschreibung: Formulare                                *
+*           autor: Elias Müller                             *
+*        erstellt: 20.2.2007                                *
+* letzte änderung: 6.8.2010                                 *
+************************************************************/
+
+/* @group basic styles */
+/* !do not change! */
+form.cmxform fieldset { 
+	margin-bottom: 10px; 
+}
+	
+form.cmxform legend {
+	_margin: 0 -7px; /* IE Win */
+}
+	
+form.cmxform label {
+	display: inline-block;
+	line-height: 1.8;
+	vertical-align: top;
+}
+	
+form.cmxform fieldset ol {
+	margin: 0;
+	padding: 0;
+}
+	
+form.cmxform fieldset li {
+	list-style: none;
+	padding: 5px;
+	margin: 0;
+}
+	
+form.cmxform fieldset fieldset {
+	border: none;
+	margin: 3px 0 0;
+}
+	
+form.cmxform fieldset fieldset legend {
+	padding: 0 0 5px;
+	font-weight: normal;
+}
+	
+form.cmxform fieldset fieldset label {
+	display: block;
+	width: auto;
+}
+
+form.cmxform label { width: 120px; } /* Width of labels */
+form.cmxform fieldset fieldset label { margin-left: 123px; } /* Width plus 3 (html space) */
+
+/*\*//*/ form.cmxform legend { display: inline-block; } /* IE Mac legend fix */
+
+/* @end */
+/* @group form styling */
+
+form.cmxform {
+	margin: 1em 0 1em 0;
+}
+	
+form.cmxform legend { 
+	background: #e6e6e6 url(../images/jquery-ui/ui-bg_highlight-hard_75_e6e6e6_1x100.png) 50% 50% repeat-x; 
+	border: 1px solid #d3d3d3; 
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
+	border-radius: 4px;
+	color: #555555;
+	font-weight: bold; 
+	padding: 0.3em 1em 0.3em;
+}
+
+form.cmxform fieldset {
+	border: none;
+	border-top: 1px solid #d3d3d3;
+	padding: 5px;
+}
+		
+form.cmxform fieldset li {
+	padding: 5px 10px 7px;
+	border-bottom: 1px dotted #d3d3d3;
+}
+
+form.cmxform fieldset li {
+	vertical-align: middle;
+}
+
+form.cmxform fieldset li:last-child {
+	border-bottom: 0px none;
+}
+
+/* for required fields (astersik) */
+form.cmxform em {
+	font-weight: bold;
+	font-style: normal;
+	color: #f00;
+}
+
+/* form elements */
+input, textarea, select {
+	border:  1px solid #cfcfcf;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	font-size: 1em;
+	margin: 0px 3px 0 3px;
+	padding: 3px 5px;
+}
+
+.cmxform input[type=text], .cmxform textarea, .cmxform select {
+	width: 250px;
+}
+
+.cmxform textarea {
+	min-height: 100px;
+}
+
+input:focus, textarea:focus {
+	background-color: #f4f4f4;
+}
+
+input[readonly] {
+	color: #6f6f6f;
+}
+
+label.button {
+	width: auto !important;
+	margin-bottom: 3px;
+}
+
+span#rate_add input {
+	width: 50px;
+}
+
+#aform legend {
+	padding-left: 30px;
+}
+
+#aform fieldset .ui-accordion-content {
+	border: 0px none !important;
+}
+
+textarea.system {
+	display: block;
+	height: auto;
+	width: 700px;
+}
+/* @end */

@@ -1,0 +1,7 @@
+{if is_array($subnav)}
+    <ul id="subnav">
+    {foreach from=$subnav item=item}    
+        <li{$item.attr}>{if $item.link !== false}<a href="{$item.link}">{/if}{$item.title}{if $item.link !== false}</a>{/if}</li>
+    {/foreach}
+    </ul>
+{/if}

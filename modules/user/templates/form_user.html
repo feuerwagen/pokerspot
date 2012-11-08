@@ -1,0 +1,25 @@
+<div id="messages"></div>
+<form action="form/user/{$path}" method="post" class="cmxform">
+	<fieldset>
+		<legend>Persönliche Daten</legend>
+		<ul>
+			<li><label for="realname">Name</label> <input type="Text" name="realname" value="{$user->realname}"/></li>
+			<li><label for="email">E-Mail</label> <input type="Text" name="email" value="{$user->email}"/></li>
+			<li><label for="status">Status</label> {if !is_array($status)}{$status}{else}
+				<select name="status" size="1">
+				{foreach from=$status item=s}
+					<option value="{$s->id}"{if $user->idstatus == $s->id} selected="selected"{/if}>{$s->name}</option>
+				{/foreach}
+				</select>
+			{/if}</li>
+		</ul>
+	</fieldset>
+	<fieldset>
+		<legend>Anmeldedaten</legend>
+		<ul>
+			<li><label for="username">Benutzername</label> <input type="Text" name="username" value="{$user->username}" {if $user->username != ''}readonly="readonly"{/if}/></li>
+			<li><label for="password">Passwort</label> <input type="Password" name="password" /></li>
+			<li><label for="password_confirm">Passwort bestätigen</label> <input type="Password" name="password_confirm" /></li>
+		</ul>
+	</fieldset>
+</form>

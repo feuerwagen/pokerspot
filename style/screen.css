@@ -1,0 +1,873 @@
+/******************************
+* datei: screen.css
+* beschreibung: chispa backend-design
+*
+* letzte änderung: 2.8.10
+*
+*******************************/
+
+/* @group Basic Elements */
+
+*, body, html {
+	font-family: Calibri, "Lucida Sans", "Lucida Sans Unicode", "Lucida Grande", Lucida, Verdana, sans-serif;
+	font-size: 14px;
+}
+
+html, body {
+	color: #151515;
+	height: 100%;
+}
+
+/* site title */
+h1 {
+/*	background: url(../images/logo.png) no-repeat;*/
+	font-size: 1.5em;
+	color: #fff;
+	height: 59px;
+	left: 29px;
+/*	text-indent: -1000em;*/
+	top: 5px;
+	position: absolute;
+	width: 259px;
+}
+
+/* area titles */
+h2 {
+	background-color: #e5e6e6;
+	font-size: 1.4em;
+	margin: 1.5em -14px 0.5em -15px;
+	padding: 5px 15px 5px 15px;
+	clear: both;
+}
+
+#content h2 {
+	margin-right: -70px;
+}
+
+/* booking titles / section title (i.e. for a table) */
+h3 {
+	font-size: 1.2em;
+	margin-bottom: 0.2em;
+}
+
+/* box title (i.e. for login form) */
+h4 {
+	font-size: 1.1em;
+	margin-top: 0em;
+	margin-bottom: 0.2em;
+}
+
+/* item titles (i.e. for items in sidebar) */
+h5 {
+	
+}
+
+p {
+	margin-bottom: 1em;
+}
+
+table {
+	border: 1px solid #d3d3d3;
+	border-collapse: separate;
+	margin-bottom: 1.5em;
+}
+
+td, th {
+	padding: 5px;
+	vertical-align: middle;
+}
+
+th {
+	background: #cccccc url(../images/jquery-ui/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;
+	font-weight: bold;
+	text-align: left;
+}
+
+td {
+	border-top: 1px solid #d3d3d3;	
+}
+
+td table {
+	margin-bottom: 0em;
+}
+
+a {
+	color: #a72512;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #a8a9a9;
+	text-decoration: underline;
+}
+
+a:active {
+}
+
+#content ul, #content ol {
+	margin-left: 1.5em;
+	margin-bottom: 1em;
+}
+
+#content ol {
+	list-style-type: decimal;
+}
+
+#content ul {
+	list-style-image: url(../images/arrow.gif);
+}
+
+#content p, #content ul, #content ol {
+	line-height: 1.5em;
+} 
+
+/* @end */
+/* @group Special Elements */
+
+/* Login-Formular */
+#login { 
+	background-color: #f5f5f5;
+	padding: 30px;
+	margin: auto;
+	margin-top: 10%;
+	width: 200px;
+	height: 150px;
+}
+
+#login h3 {
+	margin-top: 0px;
+}
+
+/* Nachrichten / Fehlermeldungen */
+div.error, div.message, div.warning {
+	margin: 0.75em 0;
+	padding: 5px;
+}
+
+.error {
+	border: 1px solid #dd7777;
+	background-color: #ffcccc;
+}
+
+.warning {
+	border: 1px solid #f0c020;
+	background-color: #ffffdd;
+}
+
+.message {
+	border: 1px solid #c7f2c8;
+	color: #33a333;
+}
+
+.error p:last-child, .warning p:last-child, .message p:last-child {
+	margin: 0px;
+}
+
+/* mark */
+.true {
+	color: #33a333;
+}
+
+.false {
+	color: #d6321c;
+}
+
+/* Color field (i.e. for rates table) */
+.color {
+	border: 1px solid #f0f0f0;
+	height: 20px;
+	width: 20px;
+}
+
+/* @end */
+/* @group Kalender */
+
+#selYear { /* nav item */
+	background-color: #4c0c03;
+	-moz-border-radius: 3px; 
+	-webkit-border-radius: 3px; 
+	border-radius: 3px;
+	float: right;	
+	margin: 2px 0px;
+}
+
+#subnav #selYear a {
+	line-height: 23px;
+}
+
+#bookings th {
+	text-align: center;
+}
+
+.weekend {
+	background-color: #f0f0f0;
+}
+
+.booking {
+	background: url(../images/bg_booking.png) repeat-x 50% 50%;
+	-webkit-background-clip: padding-box;
+	border: 2px solid #fff;
+	-moz-border-radius: 7px; 
+	-webkit-border-radius: 7px; 
+	border-radius: 7px;
+	max-width: 400px;
+	padding: 5px;
+	vertical-align: top;
+}
+
+.mark {
+	background: url(../images/bg_mark.png) repeat-x 50% 50%;
+}
+
+.event {
+	background: url(../images/bg_event.png) repeat-x 50% 50%;
+}
+
+.info {
+	margin-left: 27px;
+	position: relative;
+	z-index: 1;
+}
+
+.booking_bill {
+	color: #8f9090;
+	font-size: 2em;
+	position: absolute;
+	right: 0px;
+	top: -5px;
+}
+
+.houses {
+	/*position: absolute;*/
+	float: left;
+}
+
+.houses img {
+	display: block;
+	margin-bottom: 2px;
+}
+
+p.sign {
+	clear: both;
+	color: #424242;
+	font-style: italic;
+	margin-top: 5px;
+	margin-bottom: -3px;
+}
+
+p.sign:first-child {
+	margin-top: -3px;
+	margin-bottom: 5px;
+}
+
+#content .booking ul {
+	list-style: url(../images/arrow.png) outside;
+	margin-left: 13px;
+	margin-top: 5px;
+}
+
+/* Zivi-Spalten */
+
+.zivi {
+	cursor: pointer;
+}
+
+.we, .at, .urlaub, .we_confirmed, .at_confirmed, .urlaub_confirmed {
+	background: repeat-y 50% 0;
+	width: 10px;
+}
+
+.we {
+	background-image: url(../images/bg_we.png);
+}
+
+.at {
+	background-image: url(../images/bg_at.png);
+}
+
+.urlaub {
+	background-image: url(../images/bg_vac.png);
+}
+
+.we_confirmed {
+	background-image: url(../images/bg_we_c.png);
+}
+
+.at_confirmed {
+	background-image: url(../images/bg_at_c.png);
+}
+
+.urlaub_confirmed {
+	background-image: url(../images/bg_vac_c.png);
+}
+
+/* Übersichtstabellen */
+
+.marked td {
+	color: #757676;
+}
+
+.marked a {
+	color: #ad696c;
+}
+
+/* @end */
+
+/* @group Nachrichten */
+
+#sidebar .date, .r_message .date {
+	float: right;
+}
+
+#sidebar .read, #sidebar .read * {
+	color: #b9bbbb;
+}
+
+#sidebar .active {
+	background-color: #7d7d7d;
+	padding: 5px;
+	margin: 0 -5px;
+}
+
+#sidebar .active, #sidebar .active *  {
+	color: #000;
+}
+
+#sidebar .unread {
+	float: right;
+	font-size: 1.5em;
+}
+
+/* Nachrichten-Fenster */
+.r_message {
+	border: 1px solid #cfcfcf;
+	margin-bottom: 15px;
+	padding: 10px;
+}
+
+.r_message .unread {
+	float: left;
+	font-size: 1.2em;
+	height: 15px;
+	line-height: 0.7em;
+	margin-right: 5px;
+	text-align: center;
+	width: 15px;
+}
+
+.r_message .unread:hover {
+	text-decoration: none;
+}
+
+/* arrows */
+.r_right {
+	padding-left: 11px;
+}
+
+.r_left {
+	padding-right: 11px;
+}
+
+.r_right .tip_arrow {
+	border-right-color: #cfcfcf;
+	margin-top: 10px;
+	left: 0px;
+}
+
+.r_right .tip_arrow div {
+	margin-top: -6px;
+	margin-left: -5px;
+	border-right-color: #fff;
+}
+
+.r_left .tip_arrow {
+	border-left-color: #cfcfcf;
+	margin-top: 10px;
+	right: 0px;
+}
+
+.r_left .tip_arrow div {
+	margin-top: -6px;
+	margin-left: -7px;
+	border-left-color: #fff;
+}
+
+#content ul.m_info {
+	border: 0px none;
+	float: left;
+	list-style: none;
+	margin-left: -326px;
+	width: 300px;
+}
+
+#bb_messages .r_right {
+	padding-left: 326px;
+}
+
+#bb_messages .r_right .tip_arrow {
+	left: 330px;
+}
+
+/* @end */
+/* @group Mails */
+
+#sidebar div.booking {
+	border: 0px none;
+	color: #151515;
+	margin: 0px 8px 15px 15px;
+}
+
+#sidebar div.booking * {
+	background: none;
+	color: #151515;
+}
+
+#sidebar div.booking li {
+	border: 0px none;
+	padding: 0px;
+}
+
+#sidebar a.dialog {
+	margin: 0px 8px 15px 15px;
+}
+
+#sidebar .ui-button-text-icon .icon-mail {
+	background-image: url(../images/buttons/normal/mail_open.png) !important;
+	background-position: 0px -80px;
+	height: 32px;
+	margin-left: -4px;
+	margin-top: -14px;
+	width: 32px;
+}
+
+#sidebar .ui-button-text-icon .ui-button-text {
+	color: #151515;
+	padding-left: 38px;
+}
+
+#fixed ul.attachments {
+	background: url(../images/clip.png) no-repeat 5px 5px;
+	border-top: 1px solid #CFCFCF;
+	list-style: none;
+	margin: 0px;
+	margin-top: 1em;
+	min-height: 25px;
+	padding-top: 5px;
+	padding-left: 20px;
+}
+
+ul.attachments li {
+	display: inline-block;
+	margin-right: 2em;
+}
+
+/* @end */
+/* @group Buchungen */
+
+#accountings td, #accountings th {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+td.number {
+	text-align: right;
+}
+
+tr.notpaid {
+	background-color: #e6b3b4;
+}
+
+/* @end */
+/* @group Statistik */
+
+table.stat em {
+	color: #959595;
+}
+
+table.stat {
+	float: left;
+	margin: 5px 15px 30px 0;
+}
+
+div.chart {
+	float: left;
+	margin-bottom: 30px;
+}
+
+/* @end */
+/* @group Rechnungen */
+
+button.i_add_delete {
+	border: 0px none;
+	line-height: 32px;
+
+	width: 32px;
+}
+
+.ui-button-icon-only .icon-delete {
+	background-image: url(../images/buttons/normal/delete.png) !important;
+	background-position: 0px -80px;
+	height: 32px;
+	margin-left: -16px;
+	margin-top: -14px;
+	width: 32px;
+}
+
+button.ui-state-hover .icon-delete {
+	background-position: 0px -120px;
+}
+
+/* @end */
+/* @group Tablesorter / TableHover */
+
+th.headerSortDown, th.headerSortUp {
+	background-image: url(../images/jquery-ui/ui-bg_highlight-soft_75_table_1x100.png);
+}
+
+th.header:before {
+	background: url(../images/table_bg.gif) no-repeat 100% 50%;
+	content: '';
+	display: block;
+	float: right;
+	height: 15px;
+	margin-right: -4px;
+	width: 20px;
+}
+
+th.header.headerSortDown:before {
+	background-image: url(../images/table_desc.gif);
+}
+
+th.header.headerSortUp:before {
+	background-image: url(../images/table_asc.gif);
+}
+
+td.hover {
+	background-color: #ececec;
+}
+
+td.click {
+	background-color: #e0e0e0;
+}
+
+/* @end */
+/* @group Alignments */
+
+.alignright {
+	float: right;
+	margin-right: 0px;
+	margin-bottom: 25px;
+	clear: both;
+}
+
+.alignleft {
+	float: left;
+	margin-left: 0px !important;
+	clear: both;
+}
+
+.aligncenter {
+	margin-left: auto !important;
+	margin-right: auto !important;
+	display: block !important;
+}
+
+.clear {
+	clear: both;
+	width: 100%;
+	padding: 0 !important;
+}
+
+/* @end */
+/* @group Navigation / Header */
+
+/* Hauptnavigation */
+#nav {
+	font-size: 18px;
+	height: 73px;
+	position: absolute;
+	top: 0px;
+	left: 350px;
+}
+
+#nav li, #subnav li {
+	display: inline-block;
+}
+
+#nav a {
+	color: #ffffff;
+	display: inline-block;
+	line-height: 73px;
+	padding: 0px 20px;
+}
+
+#nav a:hover {
+	background: url(../images/nav_hover.png) repeat-x;
+	color: #eaeaea;
+	text-decoration: none;
+	text-shadow: #000000 2px 2px 5px;
+}
+
+#nav .active a, #nav .active a:hover {
+	background: url(../images/nav_active.png) repeat-x;
+	color: #eaeaea;
+}
+
+#nav .active a:hover {
+	text-shadow: #000000 2px 2px 5px;
+}
+
+#nav .active {
+	background: url(../images/nav_active_left.png) no-repeat 0 0, url(../images/nav_active_right.png) no-repeat 100% 0;
+	height: 73px;
+	margin: 0px -6px;
+	padding: 0px 6px;
+}
+
+/* Subnav */
+
+#bar {
+	background: url(../images/bg_bar.png) repeat-x 0 100%;
+	padding-bottom: 15px;
+}
+
+#subnav {
+	background: url(../images/bg_subnav.png) repeat-x;
+	height: 27px;
+	margin-bottom: -6px;
+	padding: 0px 8px;
+}
+
+#subnav a {
+	color: #eaeaea;
+	line-height: 27px;
+	padding: 0px 12px;
+}
+
+#subnav li.disabled {
+	color: #404040;
+	padding: 0px 12px;
+}
+
+#subnav a:hover {
+	color: #ffffff;
+	text-shadow: #000000 2px 2px 5px;
+}
+
+#subnav .active a {
+	font-weight: bold;
+}
+
+#subnav .select { /* select list */
+	background-color: #4c0c03;
+	-moz-border-radius: 3px; 
+	-webkit-border-radius: 3px; 
+	border-radius: 3px;
+	float: right;	
+	margin: 2px 0px;
+}
+
+#subnav .filler { /* only text */
+	color: #eaeaea;
+	float: right;	
+	line-height: 23px;
+	margin: 2px 0px;
+	padding: 0px 8px;
+}
+
+#subnav .select a {
+	line-height: 23px;
+}
+
+/* Toolbar */
+
+#buttons {
+	background-color: #ececec;
+	box-shadow: 0 0 3px #555;
+	-webkit-box-shadow: 0 0 3px #555;
+	-moz-box-shadow: 0 0 3px #555;
+	top: 40%;
+	right: 0px;
+	padding: 5px;
+	position: fixed;
+}
+
+#buttons li a {
+	background-position: 4px -76px;
+	background-repeat: no-repeat;
+	border: 1px solid #ececec;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	color: #333;
+	display: block;
+	height: 32px;
+	padding: 4px;
+	text-decoration: none;
+	text-indent: -99999px;
+	width: 32px;
+}
+
+#buttons li a:hover {
+	background-color: rgb(25,25,25);
+	background-color: rgba(25,25,25,0.92);
+	/*-webkit-background-clip: padding-box;*/
+	background-position: 4px 4px;
+	border-color: rgba(255,255,255,0.25);
+}
+
+#buttons li a:active {
+	background-position: 4px -36px;
+}
+
+#buttons li.new_booking a { 
+	background-image: url(../images/buttons/normal/b_add.png);
+}
+
+#buttons li.new_mail a { 
+	background-image: url(../images/buttons/normal/mail_open.png);
+}
+
+#buttons li.calc a { 
+	background-image: url(../images/buttons/normal/calc.png);
+}
+
+#buttons li.vacation a { 
+	background-image: url(../images/buttons/normal/plane.png);
+}
+
+#buttons li.new_message a { 
+	background-image: url(../images/buttons/normal/message.png);
+}
+
+#buttons li.separator {
+	margin-top: 5px;
+	padding-top: 5px;
+}
+
+/* Benutzerinformationen */
+#user { 
+	position: absolute;
+	top: 0px;
+	padding: 5px;
+	right: 5px;
+}
+
+#user a {
+	color: #ffffff;
+}
+
+#user a:hover {
+	color: #eaeaea;
+	text-decoration: underline;
+}
+
+a#logout {
+	background: url(../images/buttons/small/logout.png) no-repeat;
+	display: inline-block;
+	height: 16px;
+	margin-left: 2px;
+	vertical-align: top;
+	width: 16px;
+}
+
+a#logout:hover {
+	background-position: 0 -19px;
+}
+
+a#logout:active {
+	background-position: 0 -57px;
+}
+
+/* @end */
+/* @group Sidebar */
+
+#sidebar > div {
+	background-color: #272727;
+/*	border-right: 1px solid #424242;*/
+	min-height: 100%;
+	padding: 1.5em;
+}
+
+#sidebar ul {
+	margin-left: 0;
+}
+
+#sidebar * {
+	color: white;
+}
+
+#sidebar {
+	background: url(../images/shadow_right.png) repeat-y 100% 0;
+	float: left;
+	min-height: 100%;
+	margin: -120px 15px -15px -15px;
+	padding-right: 8px;
+	padding-top: 100px;
+	padding-bottom: 15px;
+	width: 300px;
+}
+
+#sidebar ul {
+	list-style: none;
+}
+
+#sidebar li {
+	border-bottom: 1px solid #a5a5a5;
+	margin-right: 15px;
+	padding: 5px 0px;
+}
+
+#sidebar li:last-child {
+	border-bottom: 0px none;
+}
+
+#sidebar a {
+	color: white;
+}
+
+/* @end */
+/* @group Layout */
+
+#head {
+	height: 73px;
+	background: url(../images/bg_head.png) repeat-x;
+	position: relative;
+}
+
+#top {
+	position: fixed;
+	width: 100%;
+	z-index: 100;
+}
+
+#content {
+	height: 100%;
+	padding: 15px;
+	padding-top: 120px;
+	padding-right: 70px;
+}
+
+#main {
+	margin-left: 315px;
+}
+
+#fixed {
+	bottom: 15px;
+	left: 330px;
+	overflow: auto;
+	position: fixed;
+	right: 65px;
+	top: 120px;
+}
+
+#content:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+
+/* @end */

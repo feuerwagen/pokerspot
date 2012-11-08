@@ -1,0 +1,90 @@
+<div class="{if $m->sender->id != $user->id}r_left{else}r_right{/if}">
+	<div class="tip_arrow"><div></div></div>
+	<div class="r_message ui-corner-all" id="{$m->id}">
+	<h3>{if $m->sender->id != $user->id}<a class="unread" href="form/message/mark/">{if $m->read === false}●{else}○{/if}</a>{/if}{$m->subject} <span class="date">{$m->created.date->returnDate('j.n.Y')}</span></h3>
+	{$m->text}
+	</div>
+</div>
+{foreach from=$m->replies item=r}
+<div class="{if $r->sender->id != $user->id}r_left{else}r_right{/if}">
+	<div class="tip_arrow"><div></div></div>
+	<div class="r_message ui-corner-all" id="{$r->id}">
+	<h3>{if $r->sender->id != $user->id}<a class="unread" href="form/message/mark/">{if $r->read === false}●{else}○{/if}</a>{/if}{$r->subject} <span class="date">{$r->created.date->returnDate('j.n.Y')}</span></h3>
+	{$r->text}
+	</div>
+</div>
+{/foreach}
+{literal}
+<script>
+$(document).ready(function() {
+	path = 'message/show/'+$('div.r_message').first().attr('id')+'.html';
+	
+	$('#main').find('div.r_message').contextMenu({
+		menu: 'messageMenu',
+		onShow: function($el) {
+			var enable = new Array(), disable = new Array(), remove = new Array();
+			if ($el.parent('div').hasClass('r_left')) {
+				remove.push('delete');
+				remove.push('b_edit');
+				enable.push('unread');
+				enable.push('read');
+				enable.push('reply');
+				
+				if ($el.find('a.unread').text() == '●')
+					$('#messageMenu').find('li.unread').addClass('read').removeClass('unread').children('a').text('Als Gelesen markieren');
+				else
+					$('#messageMenu').find('li.read').addClass('unread').removeClass('read').children('a').text('Als Ungelesen markieren');
+			} else {
+				if ($('#u_message').find('div.r_message').last().attr('id') == $el.attr('id')) 
+					enable.push('delete');
+				else
+					disable.push('delete');
+				enable.push('b_edit');
+				remove.push('unread');
+				remove.push('read');
+				remove.push('reply');
+			}
+			
+			if (disable.length > 0)
+				$('#messageMenu').disableMenuItems(disable);
+			if (remove.length > 0)
+				$('#messageMenu').removeMenuItems(remove);
+			if (enable.length > 0)
+				$('#messageMenu').enableMenuItems(enable);
+		}
+	}, function($link, $el) {
+		$link.url().attr('file', $el.attr('id')+'.html');
+		if ($link.attr('class') == '') {
+			o = ($link.parents('li').hasClass('read')) ? 'read' : 'unread';
+			$.post($link.attr('href'), {option: o, call: 'ajax'}, function(data) {
+				processJson(data);
+				
+				if (o == 'read') 
+					$el.find('a.unread').html('○');
+				else
+					$el.find('a.unread').html('●');
+			}, 'json');
+		} else {
+			openDialog($link);
+		}
+	});
+	
+	$('a.unread').click(function() {
+		$link = $(this);
+		message = $link.parents('div.r_message').attr('id'); 
+		if ($link.html() == '●') {
+			$.post(this.href+message+'.html', {option: 'read', call: 'ajax'}, function(data) {
+				processJson(data);
+				$link.html('○');
+			}, 'json');
+		} else {
+			$.post(this.href+message+'.html', {option: 'unread', call: 'ajax'}, function(data) {
+				processJson(data);
+				$link.html('●');
+			}, 'json');
+		}
+		return false;
+	});
+});
+</script>
+{/literal}

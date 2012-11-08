@@ -1,0 +1,154 @@
+<h2>Systemkonfiguration</h2>
+<h3>Chispa</h3>
+<table>
+<thead>
+    <tr>
+        <th>Variable</th>
+        <th>Wert</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>Chispa Version</td>
+        <td>{$chispa.version}</td>
+    </tr>
+    <tr>
+        <td>Server-Pfad</td>
+        <td>{$chispa.path}</td>
+    </tr>
+    <tr>
+        <td>HTML-Pfad</td>
+        <td>{$chispa.htmlpath}</td>
+    </tr>
+</tbody>
+</table>
+<h3>Installiertes System</h3>
+<table>
+<thead>
+    <tr>
+        <th>Variable</th>
+        <th>Wert</th>
+    </tr>
+</thead>
+<tbody>
+	<tr>
+        <td>Name</td>
+        <td>{$site.title}</td>
+    </tr>
+	<tr>
+        <td>Version</td>
+        <td>{$site.version}</td>
+    </tr>
+	<tr>
+        <td>Frontend</td>
+        <td>{if $site.has_frontend === true}Ja{else}Nein{/if}</td>
+    </tr>
+    <tr>
+        <td>Anzahl Benutzer</td>
+        <td>{$site.users}</td>
+    </tr>
+    <tr>
+        <td>Anzahl der Module (davon aktiv)</td>
+        <td>{$site.modules.all} ({$site.modules.active})</td>
+    </tr>
+</tbody>
+</table>
+<h3>Server</h3>
+<table>
+<thead>
+    <tr>
+        <th>Variable</th>
+        <th>Wert</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+		<td>Server-Betriebssystem</td>
+        <td>{$server.type}</td>
+    </tr>
+    <tr>
+        <td>Datenbank</td>
+        <td>MySQL {$server.db}</td>
+    </tr>
+    <tr>
+        <td>PHP-Version</td>
+        <td>{$server.php.version}</td>
+    </tr>
+    <tr>
+        <td>safe_mode</td>
+        <td>{if $server.php.safe_mode == 1}<span class="false">An{else}<span class="true">Aus{/if}</span></td>
+    </tr>
+    <tr>
+        <td>magic_quotes_gpc</td>
+        <td>{if $server.php.magic_quotes_gpc == 1}An{else}Aus{/if}</td>
+    </tr>
+    <tr>
+        <td>magic_quotes_runtime</td>
+        <td>{if $server.php.magic_quotes_runtime == 1}An{else}Aus{/if}</td>
+    </tr>
+    <tr>
+        <td>gpc_order</td>
+        <td>{if $server.php.gpc_order == 1}An{else}Aus{/if}</td>
+    </tr>
+    <tr>
+        <td>memory_limit</td>
+        <td>{$server.php.memory_limit}</td>
+    </tr>
+    <tr>
+        <td>max_execution_time</td>
+        <td>{$server.php.max_execution_time} Sekunden</td>
+    </tr>
+    <tr>
+        <td>Deaktivierte Funktionen</td>
+        <td>{if strlen($server.php.disabled_functions) > 0}<span class="false">{$server.php.disabled_functions}{else}<span class="true">Keine{/if}</span></td>
+    </tr>   
+    <tr>
+        <td>sql.safe_mode</td>
+        <td>{if $server.php.sql_safe_mode == 1}<span class="false">An{else}<span class="true">Aus{/if}</span></td>
+    </tr>
+    <tr>
+        <td>GD-Bibliothek</td>
+        <td>
+			<table>
+			<thead>
+		        <tr>
+		            <th>Einstellung</th>
+		            <th>Wert</th>
+		        </tr>
+			</thead>
+			<tbody>
+			{foreach from=$server.gd key=name item=value}
+				<tr>
+		            <td>{$name}</td>
+		            <td>{$value[0]}</td>
+		        </tr>
+			{/foreach}
+			</tbody>
+			</table>
+		</td>
+    </tr>
+    <tr>
+        <td>include_path</td>
+        <td>{$server.php.include_path}</td>
+    </tr>
+</tbody>
+</table>
+
+<h2>Errorlog</h2>
+<textarea class="system" id="errorlog" readonly="readonly" style="height:{if $errorlog == 'Errorlog ist leer!' || $errorlog === false}1.3em{else}20em{/if}">{if $errorlog === false}Kein Errorlog gefunden!{else}{$errorlog}{/if}</textarea>
+<br/><a href="form/system/cleanlog/error.html" id="cleanlog">Errorlog leeren</a>
+
+<h2>Changelog</h2>
+<textarea class="system" readonly="readonly" style="height:{if $changelog === false}1.3em{else}20em{/if}">{if $changelog === false}Kein Changelog gefunden!{else}{$changelog}{/if}</textarea>
+{literal}
+<script>
+$(document).ready(function() {
+	$('#cleanlog').button().click(function() {
+		$.post(this.href, {}, function() {
+			$('#errorlog').empty().append('Errorlog wurde geleert!');
+		});
+		return false;
+	});
+});
+</script>
+{/literal}

@@ -1,0 +1,74 @@
+{* main template for the whole site (backend) *}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <base href="http://localhost/~elias/poker/" />
+        <link rel="shortcut icon" href="favicon.ico" >
+		<link rel="stylesheet" href="style/reset.css" media="screen" />
+		<link rel="stylesheet" href="style/jquery-ui.css" media="screen" />
+		<link rel="stylesheet" href="style/jquery.contextmenu.css" media="screen" />
+		<link rel="stylesheet" href="style/jquery.tiptip.css" media="screen" />
+		<link rel="stylesheet" href="style/screen.css" media="screen" />
+		<link rel="stylesheet" href="style/forms.css" media="screen" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+        <script src="script/jquery-ui.min.js"></script>
+		<script src="script/jquery.form.js"></script>
+		<script src="script/jquery.tablesorter.js"></script>
+		<script src="script/jquery.tablehover.js"></script>
+		<script src="script/jquery.urltoolbox.js"></script>
+		<script src="script/jquery.contextmenu.js"></script>
+		<script src="script/jquery.hoverintent.js"></script>
+		<script src="script/jquery.tiptip.js"></script>
+		<script src="script/effect.fade.js"></script>
+		<script src="script/backend.js"></script>
+		<script>var path='{$path}'</script>
+        <title>{$title}</title>
+    </head>
+    <body>
+		<div id="top">
+			<div id="head">
+			    <h1>PokerSpot</h1>
+			{if is_array($nav)}
+			    <ul id="nav">
+			    {foreach from=$nav item=item}    
+			        <li id="nav_{$item.name}"{$item.attr}><a href="{$item.link}">{$item.title}</a></li>
+			    {/foreach}
+			    </ul>
+			{/if}
+			{if is_object($user)}
+			    <div id="user"><a href="admin/user/self/{$user->username}?width=500&height=500" class="dialog form" title="Benutzer bearbeiten">{$user->realname}</a> <a href="admin/user/logout" id="logout"></a></div>
+			{/if}
+			</div>
+			<div id="bar">
+			{if is_array($subnav)}
+			    <ul id="subnav">
+			    {foreach from=$subnav item=item}    
+			        <li{$item.attr}>{if $item.link !== false}<a href="{$item.link}">{/if}{$item.title}{if $item.link !== false}</a>{/if}</li>
+			    {/foreach}
+			    </ul>
+			{/if}
+			</div>
+		</div>
+		{if is_array($buttons)}
+		    <ul id="buttons">
+		    {foreach from=$buttons item=item}    
+		        <li{$item.attr}><a href="{$item.link}" class="dialog {$item.dialog}" title="{$item.title}">{$item.title}</a></li>
+		    {/foreach}
+		    </ul>
+		{/if}
+        <div id="content">
+		{if is_array($messages)}
+			{foreach from=$messages item=message key=type}
+			<div class="{$type}">
+				{foreach from=$message item=m}
+				<p>{$m}</p>
+				{/foreach}
+			</div>
+			{/foreach}
+		{/if}
+            {$content}
+        </div>
+		<div id="dialog"></div>
+    </body>
+</html>

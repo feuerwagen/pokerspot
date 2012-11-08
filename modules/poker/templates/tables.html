@@ -1,0 +1,34 @@
+<div id="sidebar">
+	{include file='tables_list.html'}
+</div>
+<div id="main">
+	<div id="fixed">
+		<div id="messages"></div>
+		<div id="pokertable">
+		</div>
+	</div>
+</div>
+<ul id="messageMenu" style="display:none">
+    {if $permissions.mark === true}<li class="read"><a href="form/mail/mark/">Erledigt</a></li>{/if}
+	{if $permissions.new === true}<li class="m_reply"><a href="admin/mail/send/reply/?width=700&height=520" class="send" title="Nachricht beantworten">Beantworten</a></li>{/if}
+	{if $permissions.assign === true}<li class="assign"><a href="admin/mail/assign/?width=450&height=200" class="form" title="Nachricht einer Belegung zuordnen">Einordnen</a></li>{/if}
+</ul>
+<ul id="hoverMenu">
+    {if $permissions.mark === true}<li class="read"><a href="form/mail/mark/" title="Erledigt"></a></li>{/if}
+	{if $permissions.new === true}<li class="m_reply"><a href="admin/mail/send/reply/?width=700&height=520" class="send" title="Nachricht beantworten"></a></li>{/if}
+	{if $permissions.assign === true}<li class="assign"><a href="admin/mail/assign/?width=450&height=200" class="form" title="Nachricht einer Belegung zuordnen"></a></li>{/if}
+</ul>
+{literal}
+<script>
+$(document).ready(function() {		
+	$('#sidebar').find('li a').live('click', function() {
+		$('#sidebar').find('li.active').removeClass('active');
+		$(this).parents('li').addClass('active');
+		$('#u_mail').load(this.href, {call: 'ajax'});
+		$url = $(this).url();
+		updatePath($url.attr('path'));
+		return false;
+	});
+});
+</script>
+{/literal}

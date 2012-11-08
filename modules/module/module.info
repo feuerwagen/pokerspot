@@ -1,0 +1,7 @@
+ID:module
+NAME:Module
+DESCRIPTION:Ermöglicht die Verwaltung der Module (diese Liste).
+VERSION:0.8
+AUTHOR:Elias Müller (elias.mueller@rwth-aachen.de)
+GROUP:Kern
+REQUIRES:

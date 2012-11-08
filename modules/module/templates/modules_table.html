@@ -1,0 +1,28 @@
+{foreach from=$groups key=name item=group}
+<h3>{$name}</h3>
+<table class="modules">
+<thead>
+    <tr>
+        <th>Aktiviert</th>
+        <th>Id</th>
+		<th>Name</th>
+        <th>Version</th>
+        <th>Beschreibung</th>
+    </tr>
+</thead>
+<tbody>
+{foreach from=$group item=m}
+{assign var="id" value=$m->id}
+    <tr>
+        <td>{if $name != 'Kern' && $permission == true && (($m->active === false && $m->can_act === true) || ($m->active === true && $m->can_deact === true))}<a href="form/module/activate/{$m->id}" class="toggle {if $m->active === true}active{/if}"><img src="images/buttons/button_{if $m->active === true}1{else}0{/if}.png" /></a>{else}<img src="images/buttons/button_{if $m->active === true}1{else}0{/if}_no.png" />{/if}</td>
+        <td>{$m->id}</td>
+		<td>{$m->name}</td>
+        <td>{$m->version}</td>
+        <td>{$m->description}
+            {if is_array($m->requires)}<br/>Abhängig von: {foreach from=$m->requires item=mod name=$id}{if $smarty.foreach.$id.first !== true}, {/if}<span class="{if $modules.$mod->active === true}true{else}false{/if}">{$mod}</span>{/foreach}{/if}
+        </td>
+    </tr>
+{/foreach}
+</tbody>
+</table>
+{/foreach}

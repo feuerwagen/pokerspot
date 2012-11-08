@@ -1,0 +1,7 @@
+ID:system
+NAME:System
+DESCRIPTION:Grundlegende Methoden / Infos für Chispa.
+VERSION:0.5
+AUTHOR:Elias Müller (elias.mueller@rwth-aachen.de)
+GROUP:Kern
+REQUIRES:

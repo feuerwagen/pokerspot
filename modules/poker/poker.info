@@ -1,0 +1,7 @@
+ID:poker
+NAME:Poker
+DESCRIPTION:Oberfläche und Regelwerk zum Spielen von Texas Hold'em Spielen.
+VERSION:0.1
+AUTHOR:Elias Müller (elias.mueller@rwth-aachen.de)
+GROUP:Poker
+REQUIRES:

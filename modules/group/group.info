@@ -1,0 +1,7 @@
+ID:group
+NAME:Gruppen
+DESCRIPTION:Verwaltet Benutzergruppen und -rechte.
+VERSION:1.0
+AUTHOR:Elias Müller (elias.mueller@rwth-aachen.de)
+GROUP:Kern
+REQUIRES:

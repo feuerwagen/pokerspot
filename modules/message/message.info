@@ -1,0 +1,7 @@
+ID:message
+NAME:Rohrpost
+DESCRIPTION:Stellt ein internes Nachrichtensystem zur Kommunikation zwischen den Benutzern zur Verfügung.
+VERSION:1.0
+AUTHOR:Elias Müller (elias.mueller@rwth-aachen.de)
+GROUP:Kern - Erweitert
+REQUIRES:

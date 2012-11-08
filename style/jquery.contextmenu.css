@@ -1,0 +1,214 @@
+/* @group Generic menu styles */
+
+.contextMenu, .hoverMenu, .hoverBar {
+	border: 0px none !important;
+	text-shadow: none !important;
+	color: #fff;
+	padding: 0px !important;
+	margin: 0px !important;
+}
+
+.hoverBar {
+	height: 32px;
+}
+
+.contextMenu li, .hoverMenu li, .hoverBar li {
+	list-style: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+.hoverBar li {
+	display: inline-block;
+	height: 32px;
+	width: 36px;
+}
+
+.contextMenu a, .hoverMenu a {
+	color: #fff;
+	text-decoration: none;
+	display: block;
+	line-height: 32px;
+	height: 32px;
+	background-position: 5px 0px;
+	background-repeat: no-repeat;
+	padding-left: 39px;
+	padding-right: 15px;
+}
+
+.hoverBar a {
+	text-indent: -1000em;
+	display: block;
+	height: 32px;
+	width: 32px;
+	background-position: 2px 0px;
+	background-repeat: no-repeat;
+	padding: 0px 2px;
+}
+
+.noIcons a {
+	padding-left: 15px;
+}
+
+.contextMenu li.hover a, .hoverMenu a:hover, .hoverBar a:hover {
+	background-color: rgba(255,255,255,0.9);
+	background-position: 5px -80px;
+	color: #333;
+}
+
+.contextMenu li.hover:first-child a, .hoverMenu li:first-child a:hover {
+	border-top-left-radius: 3px;
+	-webkit-border-top-left-radius: 3px;
+	-moz-border-radius-topleft: 3px;
+	border-top-right-radius: 3px;
+	-webkit-border-top-right-radius: 3px;
+	-moz-border-radius-topright: 3px;
+}
+
+.contextMenu li.hover:last-child a, .hoverMenu li:last-child a:hover {
+	border-bottom-left-radius: 3px;
+	-webkit-border-bottom-left-radius: 3px;
+	-moz-border-radius-bottomleft: 3px;
+	border-bottom-right-radius: 3px;
+	-webkit-border-bottom-right-radius: 3px;
+	-moz-border-radius-bottomright: 3px;
+}
+
+.hoverBar a:hover {
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	background-position: 2px -80px;
+}
+
+/* @end */
+/* @group Context menu */
+
+.cmTrigger {
+	cursor: pointer;
+}
+
+.contextMenu, .hoverBar {
+	position: absolute;
+	z-index: 99999;
+	display: none;
+}
+
+li.disabled a {
+	background-position: 5px -80px;
+	color: #333;
+	cursor: default;
+}
+
+.contextMenu li.hover.disabled a, .hoverMenu li.disabled a:hover {
+	background-color: transparent;
+}
+
+li.removed {
+	display: none;
+	height: 0px;
+}
+
+li.separator {
+	border-top: solid 1px #CCC;
+}
+
+/* @end */
+/* @group Calendar menu */
+
+.hoverButtons, .hoverBar {
+	z-index: 99 !important;
+}
+
+.hoverButtons.hover_right .tip_arrow {
+	margin-left: -13px;
+	margin-top: 10px;
+}
+
+/* @end */
+/* @group Icons */
+
+.contextMenu li.edit a { 
+	background-image: url(../images/buttons/normal/config.png); 
+}
+
+.contextMenu li.b_edit a, .hoverBar li.b_edit a { 
+	background-image: url(../images/buttons/normal/b_edit.png); 
+}
+
+.contextMenu li.read a, .hoverBar li.read a { 
+	background-image: url(../images/buttons/normal/read.png); 
+}
+
+.contextMenu li.unread a, .hoverBar li.unread a { 
+	background-image: url(../images/buttons/normal/unread.png); 
+}
+
+.contextMenu li.reply a, .hoverBar li.reply a { 
+	background-image: url(../images/buttons/normal/message.png); 
+}
+
+.contextMenu li.assign a, .hoverBar li.assign a { 
+	background-image: url(../images/buttons/normal/chain.png); 
+}
+
+.contextMenu li.m_reply a, .hoverBar li.m_reply a { 
+	background-image: url(../images/buttons/normal/reply.png); 
+}
+
+.contextMenu li.view a { 
+	background-image: url(../images/buttons/normal/view.png); 
+}
+
+.contextMenu li.delete a, .hoverBar li.delete a { 
+	background-image: url(../images/buttons/normal/delete.png);
+	background-position: 5px -120px;
+}
+
+.hoverBar li.delete a { 
+	background-position: 2px -120px;
+}
+
+.contextMenu li.b_delete a { 
+	background-image: url(../images/buttons/normal/b_delete.png);
+	background-position: 5px -120px;
+}
+
+.contextMenu li.transfer a { 
+	background-image: url(../images/buttons/normal/b_transfer.png);
+}
+
+.contextMenu li.restore a { 
+	background-image: url(../images/buttons/normal/restore.png);
+}
+
+.hoverMenu li.edit a { 
+	background-image: url(../images/buttons/normal/b_edit.png); 
+}
+
+.hoverMenu li.eval a { 
+	background-image: url(../images/buttons/normal/star.png); 
+}
+
+.hoverMenu li.invoice a, .contextMenu li.invoice a { 
+	background-image: url(../images/buttons/normal/bill.png); 
+}
+
+.hoverMenu li.guests a { 
+	background-image: url(../images/buttons/normal/people.png); 
+}
+
+.hoverMenu li.mail a, .contextMenu li.mail a { 
+	background-image: url(../images/buttons/normal/mail_open.png); 
+}
+
+.hoverMenu li.nomail a, .contextMenu li.nomail a { 
+	background-image: url(../images/buttons/normal/mail_closed.png); 
+}
+
+.hoverMenu li.delete a { 
+	background-image: url(../images/buttons/normal/b_delete.png);
+	background-position: 5px -120px;
+}
+
+/* @end */

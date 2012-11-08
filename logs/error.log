@@ -1,0 +1,40 @@
+[14-Sep-2010 17:22:22] Chispa Error: Database error: Invalid SQL: SELECT nights, revenues, (DATE_SUB(CURDATE(), INTERVAL 10 DAY)  caused by 1 in /Volumes/Dateien/elias/Sites/chispa/classes/db.class.php on line 390
+[14-Sep-2010 17:22:22] Chispa Error: Database error: Invalid SQL: INSERT INTO stats
+											SET created = NOW(),
+												year = 2011,
+											    revenues = '14492',
+											    nights = '1424'   
+MySQL Error: 1054 (Unknown column 'year' in 'field list') 
+ caused by 1 in /Volumes/Dateien/elias/Sites/chispa/classes/db.class.php on line 390
+[14-Sep-2010 17:22:22] PHP Warning:  mysql_data_seek(): 167 is not a valid MySQL result resource in /Volumes/Dateien/elias/Sites/chispa/classes/db_result.class.php on line 87
+[14-Sep-2010 17:22:22] PHP Warning:  mysql_fetch_assoc(): 167 is not a valid MySQL result resource in /Volumes/Dateien/elias/Sites/chispa/classes/db_result.class.php on line 88
+[14-Sep-2010 17:22:22] Chispa Error: Database error: Invalid SQL: SELECT nights, revenues, (DATE_SUB(CURDATE(), INTERVAL 10 DAY)  caused by 1 in /Volumes/Dateien/elias/Sites/chispa/classes/db.class.php on line 390
+[14-Sep-2010 17:22:22] Chispa Error: Database error: Invalid SQL: SELECT i.idinvoice, b.idbooking, 
+						   (SELECT SUM(ii.value) FROM invoices_items AS ii WHERE ii.idbooking = b.idbooking
+								AND (ii.title = 'Miete Schänke' OR ii.title = 'Miete Saal' OR ii.title = 'Miete Kurfürstenkeller')) AS items
+					  FROM bookings AS b
+				 LEFT JOIN invoices AS i ON b.idbooking = i.idbooking
+					 WHERE YEAR(b.end) = 
+					   AND b.canceled = 0
+					   AND b.rate != ''
+				  ORDER BY b.end ASC   
+MySQL Error: 1064 (You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'AND b.canceled = 0
+					   AND b.rate != ''
+				  ORDER BY b.end ASC' at line 7) 
+ caused by 1 in /Volumes/Dateien/elias/Sites/chispa/classes/db.class.php on line 390
+[14-Sep-2010 17:23:11] PHP Warning:  mysql_data_seek(): 154 is not a valid MySQL result resource in /Volumes/Dateien/elias/Sites/chispa/classes/db_result.class.php on line 87
+[14-Sep-2010 17:23:11] PHP Warning:  mysql_fetch_assoc(): 154 is not a valid MySQL result resource in /Volumes/Dateien/elias/Sites/chispa/classes/db_result.class.php on line 88
+[14-Sep-2010 17:23:11] Chispa Error: Database error: Invalid SQL: SELECT nights, revenues, (DATE_SUB(CURDATE(), INTERVAL 10 DAY)  caused by 1 in /Volumes/Dateien/elias/Sites/chispa/classes/db.class.php on line 390
+[14-Sep-2010 17:23:11] Chispa Error: Database error: Invalid SQL: SELECT i.idinvoice, b.idbooking, 
+						   (SELECT SUM(ii.value) FROM invoices_items AS ii WHERE ii.idbooking = b.idbooking
+								AND (ii.title = 'Miete Schänke' OR ii.title = 'Miete Saal' OR ii.title = 'Miete Kurfürstenkeller')) AS items
+					  FROM bookings AS b
+				 LEFT JOIN invoices AS i ON b.idbooking = i.idbooking
+					 WHERE YEAR(b.end) = 
+					   AND b.canceled = 0
+					   AND b.rate != ''
+				  ORDER BY b.end ASC   
+MySQL Error: 1064 (You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'AND b.canceled = 0
+					   AND b.rate != ''
+				  ORDER BY b.end ASC' at line 7) 
+ caused by 1 in /Volumes/Dateien/elias/Sites/chispa/classes/db.class.php on line 390

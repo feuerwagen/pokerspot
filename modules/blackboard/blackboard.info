@@ -1,0 +1,7 @@
+ID:blackboard
+NAME:Schwarzes Brett
+DESCRIPTION:Erzeugt die Übersichtsseite im Backend, indem die von anderen Modulen bereitgestellten Elemente ausgegeben werden.
+VERSION:0.2
+AUTHOR:Elias Müller (elias.mueller@rwth-aachen.de)
+GROUP:Kern
+REQUIRES:
