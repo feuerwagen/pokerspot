@@ -5,6 +5,106 @@
 	<div id="fixed">
 		<div id="messages"></div>
 		<div id="pokertable">
+			<div id="ptable">
+				<div class="cards"><div>
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<div class="card f3"></div>
+					<div class="card t"></div>
+					<div class="card r"></div>
+					<div class="pot">1000</div>
+				</div></div>
+				<div class="player" style="top:-10px; left:0px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="top:120px; left:-30px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="bottom:20px; left:0px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="top:-40px; left:345px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="top:-40px; left:170px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="top:-40px; right:170px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="top:-10px; right:0px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="top:120px; right:-30px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="bottom:20px; right:0px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+				<div class="player" style="bottom:0px; left:350px;">
+					<div class="card f1"></div>
+					<div class="card f2"></div>
+					<h5>PlayerName</h5>
+					<div class="pot">Bet: 30</div>
+					<div class="stack">500</div>
+				</div>
+			</div>
+			
+				<div id="plog">
+					<textarea readonly>Log</textarea>
+					<button id="p_clear_log">Löschen</button><button id="p_save_log">Speichern</button>
+				</div>
+				<div id="pcontrols">
+					<button id="p_fold" class="big">Fold</button>
+					<button id="p_check_call" class="big">Check</button>
+					<div class="pbet">
+						<button id="p_bet_raise" class="big">Bet</button>
+						<input type="number" id="p_bet_value" min="10" max="500" value="10" />
+					</div>
+					<div id="radio">
+						<button id="p_bet_min" class="small">Min</button>
+						<button id="p_bet_step1" class="small">X1</button>
+						<button id="p_bet_step2" class="small">X2</button>
+						<button id="p_bet_step3" class="small">X3</button>
+						<button id="p_bet_max" class="small">Max</button>
+				    </div>
+				</div>
 		</div>
 	</div>
 </div>
@@ -24,11 +124,10 @@ $(document).ready(function() {
 	$('#sidebar').find('li a').live('click', function() {
 		$('#sidebar').find('li.active').removeClass('active');
 		$(this).parents('li').addClass('active');
-		$('#u_mail').load(this.href, {call: 'ajax'});
-		$url = $(this).url();
-		updatePath($url.attr('path'));
 		return false;
 	});
+
+	$('#radio').buttonset();
 });
 </script>
 {/literal}
