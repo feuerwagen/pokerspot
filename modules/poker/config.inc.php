@@ -24,20 +24,41 @@ return array(
             'call' => '',
             'fold' => '',
             'check' => '',
+            'load' => '',
             'poll' => '', // poll for action at a poker table
             'join' => '', // join poker table
             'leave' => '', // leave poker table
 		),
 		'backend' => array(
-			'show' => '', // show a poker table
+			'play' => '',
+            'show' => '',
+            'tables' => 'Pokertische verwalten', // display the list of poker tables
+            'spots' => 'Spots verwalten', // display the list of poker spots
 		),
 	),
 	// menu items for the backend
 	'menu' => array(
         'root' => array(
             'poker' => array(
-                'action' => 'show'
+                'action' => 'play'
             )
+        ),
+        'poker' => array(
+            array(
+                'action' => 'play',
+                'title' => 'Spielen',
+                'priority' => 1
+            ),
+            array(
+                'action' => 'tables',
+                'title' => 'Tische',
+                'priority' => 2
+            ),
+            array(
+                'action' => 'spots',
+                'title' => 'Spots',
+                'priority' => 3
+            ),
         )
 	),
     // messages for form error handling
@@ -82,5 +103,6 @@ return array(
             ),
         ),
         'leave' => array(),
+        'load' => array(),
     ),
 );

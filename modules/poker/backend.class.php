@@ -41,9 +41,15 @@ class Pokers extends BackendController {
 	 **/
 	protected function generateTitle($title = '') {
 		switch ($this->s->action) {
-			case 'show':
-				$title = 'Spiel';
+			case 'play':
+				$title = 'Spielen';
 				break;
+            case 'tables':
+                $title = 'Tische';
+                break;
+            case 'spots':
+                $title = 'Spots';
+                break;
 		}
 		return parent::generateTitle($title);
 	}
@@ -52,23 +58,37 @@ class Pokers extends BackendController {
     * Build site content depending on requested action.
     */  
     protected function buildSite() {
+        $clean = false;
         switch ($this->s->action) {
-            case 'show':
+            case 'play':
 				$tpl = new Template('poker');
 				$tables = PokerTable::getAll();
 
 				foreach ($tables as $key => $table) {
 					$table->active = (PokerPlayer::getActivePlayer($key) !== FALSE) ? TRUE : FALSE;
+                    $table->free = $table->seats - count($table->players);
 				}
-				
+
 				$tpl->assign('tables', $tables);
-				$tpl->assign('current', current($tables));
+				$tpl->assign('current', ''); //current($tables));
 				$content = $tpl->fetch('tables.html');
 				break;
+            case 'show':
+                if ($this->s->params[0] != '') {
+                    $tpl = new Template('poker');
+
+                    $tpl->assign('idtable', $this->s->params[0]);
+                    $content = $tpl->fetch('table.html');
+                    $clean = true;
+                } else {
+                    $content = 'Es wurde kein Pokertisch ausgewählt, der angezeigt werden könnte!';
+                }
+                break;
 			default:
+                $content = '<h2>In Arbeit! Bitte klicke im Menü auf „Spielen“ um Poker zu spielen.</h2>';
                 break; 
         }
-		parent::buildSite($content);
+		parent::buildSite($content, $clean);
     }
     
     /**
@@ -76,11 +96,16 @@ class Pokers extends BackendController {
     */
     protected function formAction() {
 		$this->escapeFormVars();
-		$player = PokerPlayer::getActivePlayer($this->s->params[0]);
 
         switch ($this->s->action) {
+            case 'load':
+                $player = PokerPlayer::getActivePlayer($this->s->params[0]);
+                $this->form['autocomplete'] = $this->getGameInfo($this->s->params[0], $player);
+                return true;
+                break;
         	case 'bet':
         	case 'raise':
+                $player = PokerPlayer::getActivePlayer($this->s->params[0]);
         		// check, if valid action
         		if ($this->validAction($player, $this->s->action, array('value' => $this->vars['value']))) {
         			// save new action
@@ -93,6 +118,7 @@ class Pokers extends BackendController {
         		} 		
         		break;
         	case 'call':
+                $player = PokerPlayer::getActivePlayer($this->s->params[0]);
         		// check, if valid action
         		if ($this->validAction($player, $this->s->action, array('value' => $this->vars['value']))) {
         			// save new action
@@ -103,6 +129,7 @@ class Pokers extends BackendController {
         		break;
         	case 'fold':
         	case 'check':
+                $player = PokerPlayer::getActivePlayer($this->s->params[0]);
         		// check, if valid action
         		if ($this->validAction($player, $this->s->action)) {
         			// save new action
@@ -113,28 +140,32 @@ class Pokers extends BackendController {
         		break;
         	case 'join':
         		// player joins table
+                $player = PokerPlayer::getActivePlayer($this->s->params[0]);
         		if (isset($this->s->params[0]) && $player == false) { // table id
     				// create new player & mark the player to join the table for the next game
         			$player = new PokerPlayer($this->s->params[0], $this->vars['seat'], $this->vars['stack']);
-        			if ($player->save()) {
-        				$table = PokerTable::getInstance($player->table->id, TRUE);
-        				// start new game if sufficient player count & no game running
-        				if (count($table->players) >= 2 && $table->game == FALSE) {
-        					$this->gameNew($table);
-        				}
-        				return true;
-        			}
+                    if ($this->validAction($player, 'join', array('seat' => $this->vars['seat'], 'stack' => $this->vars['stack'])) && $player->save()) {
+                        $this->saveAction($player, 'join', array('seat' => $this->vars['seat'], 'stack' => $this->vars['stack']));
+                        $table = PokerTable::getInstance($this->s->params[0], TRUE);
+                        // start new game if sufficient player count & no game running
+                        if (count($table->players) >= 2 && $table->game == FALSE) {
+                            $this->gameNew($table);
+                        }
+                        return true;
+                    }
+        			
         		}
         		break;
         	case 'leave':
         		// player leaves table
+                $player = PokerPlayer::getActivePlayer($this->s->params[0]);
         		if (isset($this->s->params[0])) { // table id
         			// mark the player to leave the table after the current game
-        			$player->join = false;
-        			$player->leave = true;
-        			if ($player->save()) {
-        				return true;
-        			}
+                    $player->leave = true;
+                    if (($player->join == true && $player->delete()) || $player->save()) {
+                        $this->saveAction($player, 'leave');
+                        return true;
+                    }
         		}
         		break;
         	case 'poll':
@@ -148,57 +179,135 @@ class Pokers extends BackendController {
 				$counter = MESSAGE_TIMEOUT_SECONDS;
 				$new_actions = false;
 
-				// initial request: return table situation, but no hand history
-				if ($this->s->params[1] == 'short') {
-					$new_actions = array();
-				} else {
-					// Poll for messages and hang if nothing is found, until the timeout is exhausted
-					while ($counter > 0) {
-					    // Check for new data
-					    if ($new_actions = $player->table->getNewActions($this->vars['timestamp'])) {
-					        break;
-					    } else {
-					        // Otherwise, sleep for the specified time, after which the loop runs again
-					        usleep(MESSAGE_POLL_MICROSECONDS);
-					 
-					        // Decrement seconds from counter (the interval was set in μs, see above)
-					        $counter -= MESSAGE_POLL_MICROSECONDS / 1000000;
-					    }
-					}
+				// Poll for messages and hang if nothing is found, until the timeout is exhausted
+				while ($counter > 0) {
+				    // Check for new data
+				    if ($new_actions = PokerTable::getNewActions($this->vars['timestamp'], $this->s->params[0])) {
+				        break;
+				    } else {
+				        // Otherwise, sleep for the specified time, after which the loop runs again
+				        usleep(MESSAGE_POLL_MICROSECONDS);
+				 
+				        // Decrement seconds from counter (the interval was set in μs, see above)
+				        $counter -= MESSAGE_POLL_MICROSECONDS / 1000000;
+				    }
 				}
 				 
 				// If we've made it this far, we've either timed out or have some data to deliver to the client
 				if (is_array($new_actions)) {
-					// Get actions since last request
-					/*$last_request = $this->vars['timestamp'];
-					foreach ($player->table->getNewActions($this->vars['timestamp']) as $key => $value) {
-					}//*/
-
-					// Get active (= seated) players
-					$active_players = $player->table->getActivePlayers(FALSE);
-					$players = array();
-					foreach ($active_players as $p) {
-						$players[] = array(
-							'position' => $p->position,
-							'stack' => $p->stack,
-							'bet' => $p->bet,
-							'fold' => ($player->last_action != NULL) ? $player->last_action->action : ''
-						);
-					}
-
-					// Send data to client
-				    // return json object with: timestamp, past actions, player info, valid actions
-					$this->form['autocomplete'] = array(
-						'timestamp' => time(),
-						'log' => $new_actions,
-						'players' => $players,
-						'actions' => $this->validActions($player),
-					);
-				    return true;
+                    $player = PokerPlayer::getActivePlayer($this->s->params[0]);
+                    $this->form['autocomplete'] = $this->getGameInfo($this->s->params[0], $player, $new_actions);
 				}
+                return true;
         		break;
         }
 		return false;
+    }
+
+    /**
+     * Compose an array with essential game data which represent the current state of a table/game.
+     */
+    private function getGameInfo($idtable, $player = FALSE, $actions = FALSE) {
+        // get basic table info
+        $table = PokerTable::getInstance($idtable);
+        $valid_actions = '';
+        $active_player = FALSE;
+
+        // Get all players (seated and waiting)
+        $active_players = $table->getActivePlayers(FALSE, FALSE);
+        $players = array();
+        foreach ($active_players as $p) {
+            $players[$p->position] = array(
+                'position' => $p->position,
+                'name' => $p->user->realname,
+                'stack' => $p->stack,
+                'bet' => $p->bet,
+                'waiting' => $p->join,
+                'leaves' => $p->leave,
+                'button' => $p->position == $table->positions['dealer'],
+                'fold' => ($p->last_action != NULL) ? $p->last_action->action : ''
+            );
+
+            // Get valid actions / active player
+            $v = $this->validAction($p);
+            if (is_object($player) && $player->join == FALSE && $player === $p) {
+                $valid_actions = $v;
+            } 
+            if ($v != FALSE && $p->join == FALSE) {
+                $active_player = $p->position;
+            }
+        }
+
+        // detect new game
+        $showdown = FALSE;
+        if ($actions != FALSE) {
+            $a = array_reverse($actions);
+            $g = FALSE;
+            foreach ($a as $action) {
+                if ($g == FALSE && $action->action != 'showdown') {
+                    $g = $action->game->id;
+                } elseif ($g != $action->game->id && $action->action == 'showdown') {
+                    // get showdown data
+                    // player cards, winning hand, winning players
+                    $showdown = array(
+                        'winning_hand' => $action->params['winning_hand'], // name of the winning hand
+                        'player_hands' => $action->params['player_hands'], // hands of all players in showdown 
+                        'winner_pots' => $action->params['winners'], // winning player pots
+                        //'cards' => $action->params['cards'], // TODO: map raw cards to corresponding numbers
+                        //'suit' => $action->params['suit'],
+                        'game' => $action->params['game']
+                    );
+                    break;
+                }
+            }
+        }
+
+        // Get active game info
+        if (is_object($table->game)) {
+            $phase = $table->game->getGamePhase();
+            $game = array(
+                'flop' => ($table->game->flop !== FALSE && $phase > 0) ? array(
+                        $table->game->flop[0]->id,
+                        $table->game->flop[1]->id,
+                        $table->game->flop[2]->id,
+                    ) : false,
+                'turn' => ($table->game->turn !== FALSE && $phase > 1) ? $table->game->turn->id : false,
+                'river' => ($table->game->river !== FALSE && $phase > 2) ? $table->game->river->id : false,
+                'pot' => $table->game->pot,
+            );
+
+            // Get action log for current game
+            if ($actions == FALSE)
+                $actions = $table->game->actions;
+
+            // get current player cards
+            if ((is_object($player))) {
+                $cards = array($player->cards[0]->id, $player->cards[1]->id);
+            }
+        }
+
+        // Get action log
+        if ($actions !== FALSE) {
+            $log = $this->getActionLog($actions);
+        }
+
+        // Send data to client
+        // return array (for json object) with: timestamp, past actions, player info, game info, table info
+        return array(
+            'timestamp' => time(),
+            'log' => $log,
+            'table' => array(
+                'seats' => $table->seats,
+                'blind' => $table->blinds['big'],
+            ),
+            'game' => $game,
+            'cards' => $cards,
+            'self' => (is_object($player)) ? $player->position : FALSE,
+            'active' => $active_player,
+            'players' => $players,
+            'actions' => $valid_actions,
+            'showdown' => $showdown,
+        );
     }
 	    
     /**
@@ -209,44 +318,77 @@ class Pokers extends BackendController {
      * @param array $params
      */ 
     private function validAction($player, $action = false, $params = Array()) {
+        if (!is_object($player)) {
+            return false;
+        }
+
+        // is player allowed to join the table?
+        if ($action == 'join') {
+            if (!is_object($player->table->players[$params['seat']])) {
+                // seat is free, so allow join
+                return true;
+            }
+            return false;
+        }
+
+        // no game running or player all-in
+        if (!is_object($player->table->game) || $player->stack == 0) {
+            return false;
+        }
+
         // get last deal and bet
         $actions = $player->table->game->getTurnActions();
         $valid = array();
+        $active_players = $player->table->getActivePlayers();
+        $allin = TRUE;
+        foreach ($active_players as $key => $value) {
+            if ($value !== $player && $value->stack > 0) {
+                $allin = FALSE;
+                break;
+            }
+        }
 
-    	// rule 1: player folded -> FALSE (no valid actions)
-        /*if ($player->last_action->action == 'fold') {
-        	return false;
-        }
-        else//*/
         if (array_key_exists('bet', $actions)) {
-        	// rule 2: active bet/raise (unanswered) -> call/raise/fold
-        	if ($actions['bet']->time > $player->last_action->time) {
-        		$valid = array(
-        			'call' => $actions['bet']->params['value'] - $player->bet, // value: realtive!
-        			'raise' => $actions['bet']->params['value'] + $actions['bet']->params['rel_value'], // value: absolute!
-        			'fold' => '');
+        	// rule 1: own bigblind -> raise/check
+            if ($actions['bet']->action == 'blind' && $actions['bet']->player == $player && ($player->last_action === $actions['bet'] || $player->last_action->action == 'deal')) {
+                $valid = array(
+                    'raise' => $actions['bet']->params['value']*2, // value: absolute!
+                    'check' => '');
+            }
+            // rules 2/3/4: active bet/raise (unanswered)
+        	elseif ($player->last_action->action == 'blind' || $actions['bet']->id > $player->last_action->id) {
+                // rule 2: all other players all-in -> call/fold
+                if ($allin == TRUE) {
+                    $valid = array(
+                        'call' => $actions['bet']->params['value'] - $player->bet, // value: relative!
+                        'fold' => '');
+                } 
+                // rule 3: active bet/raise (unanswered) -> call/raise/fold
+                else {
+                    $valid = array(
+                        'call' => $actions['bet']->params['value'] - $player->bet, // value: relative!
+                        'raise' => $actions['bet']->params['value'] + $actions['bet']->params['rel_value'], // value: absolute!
+                        'fold' => '');
+                }
+
+                // rule 4: last bet higher than player stack -> call(all in)/fold
+                if ($actions['bet']->params['value'] - $player->bet >= $player->stack) {
+                    $valid['call'] = $player->stack;
+                    if (array_key_exists('raise', $valid)) 
+                        unset($valid['raise']);
+                } 
         	} 
-        	// rule 2a: own bigblind -> raise/check
-        	elseif ($actions['bet']->action == 'blind' && $actions['bet']->params['blind'] == 'big' && $player->last_action === $actions['bet']) {
-        		$valid = array(
-        			'raise' => $actions['bet']->params['value'] + $actions['bet']->params['rel_value'], // value: absolute!
-        			'check' => '');
-        	}
-        	// rule 3: answered bet / own bet/raise -> FALSE 
-        	/*else { 
-        		 false;
-        	}//*/
         }
-    	// rule 4: check (unanswered) -> check/bet
-    	elseif ($actions['deal']->time > $player->last_action->time) {
-    		$valid = array(
-    			'bet' => $player->table->blinds['big'], 
-    			'check' => '');
+    	// rule 5: check (unanswered) -> check/bet
+    	elseif ($actions['deal']->id > $player->last_action->id) {
+            if ($allin == TRUE) {
+                return false;
+            } else {
+                $valid = array(
+                    'bet' => $player->table->blinds['big'], 
+                    'check' => '');
+            }
     	}
-    	// rule 5: check (answered) -> FALSE 
-    	/*else {
-    		return false;
-    	}//*/
 
     	// return TRUE/FALSE if request for specific action 
     	if ($action !== false) {
@@ -260,9 +402,9 @@ class Pokers extends BackendController {
     		return false;
     	}
 
-    	// return 'wait'-Action if its not the player's turn
-    	if ($player != $player->table->getNextPlayer()) {
-    		return array('wait');
+    	// return if its not the player's turn
+    	if ($player != $player->table->getNextPlayer() || count($valid) == 0) {
+    		return false;
     	}
 
     	// return valid actions for normal request
@@ -277,88 +419,169 @@ class Pokers extends BackendController {
      * @param array $params
      */ 
     private function saveAction($player, $action, $params = Array()) {
-        $a = new PokerAction($player->table->game, $action, $params, $player);
+        $player->table->lock(TRUE); // set db lock to prevent early polling response
+        $game = (is_object($player->table->game) && $action != 'leave') ? $player->table->game : FALSE;
+        $a = new PokerAction($game, $action, $params, $player);
 
 		if ($a->save()) {
-			// add new action to the game object
-			$player->table->game->actions[] = $a;
-			// and to the player
-			$player->last_action = $a;
+            if ($action != 'join' && $action != 'leave') {
+                // add new action to the game object
+                $player->table->game->actions[] = $a;
+                // and to the player
+                $player->last_action = $a;
 
-			// update player stack
-			switch($action) {
-				case 'bet':
-				case 'raise':
-					// reduce player stack size
-    				$player->stack -= $params['value'] - $player->bet;
+                // update player stack
+                switch($action) {
+                    case 'bet':
+                    case 'raise':
+                        // reduce player stack size
+                        $player->stack -= $params['value'] - $player->bet;
 
-    				// increase player bet size
-    				$player->bet = $params['value'];
+                        // increase player bet size
+                        $player->bet = $params['value'];
 
-    				$player->save();
-					break;
-				case 'call':
-					// reduce player stack size
-    				$player->stack -= $params['value'];
+                        $player->save();
+                        break;
+                    case 'call':
+                        // reduce player stack size
+                        $player->stack -= $params['value'];
 
-    				// increase player bet size
-    				$player->bet += $params['value'];
+                        // increase player bet size
+                        $player->bet += $params['value'];
 
-    				$player->save();
-					break;
-			}
-			
-			// perform corresponding actions (deal cards, showdown)
-			if ($action != 'bet' && $action != 'raise') {
-				$active_players = $player->table->getActivePlayers();
-				// all players except one folded -> game finished
-				if (count($active_players) == 1) {
-					$this->collectBets($table);
-					$this->gameShowdown($player->table, $active_players);
-				}
-				else {
-					// get next player
-					$next = $player->table->getNextPlayer();
-					// no valid actions for next player -> perform next game step 
-					if ($this->validAction($next) == false) {
-						$this->collectBets($table);
-						// get last deal
-	        			$actions = $player->table->game->getTurnActions();
+                        $player->save();
+                        break;
+                }
+                
+                // perform corresponding actions (deal cards, showdown)
+                if ($action != 'bet' && $action != 'raise') {
+                    $active_players = $player->table->getActivePlayers();
 
-	        			switch ($actions['deal']->action) {
-	        				case 'river':
-	        					$this->gameShowdown($player->table, $active_players);
-	        					break;
-	        				case 'turn':
-	        					$this->gameDealCards($player->table, 'river');
-	        					break;
-	        				case 'flop':
-	        					$this->gameDealCards($player->table, 'turn');
-	        					break;
-	        				case 'deal':
-	        				default:
-	        					$this->gameDealCards($player->table, 'flop');
-	        					break;
-	        			}
-					}
-				}
-			}
+                    // all players except one folded -> game finished
+                    if (count($active_players) == 1) {
+                        $this->collectBets($player->table);
+                        $this->gameShowdown($player->table);
+                    }
+                    else {
+                        $this->gameNextAction($player->table);
+                    }
+                }
+            }
 
+            $player->table->lock(FALSE); // unlock db tables
 			return true;
 		}
-
+        $player->table->lock(FALSE); // unlock db tables
 		return false;
+    }
+
+    /**
+     * Perform next game action, if no valid player actions left
+     *
+     * @param object $table The current table object
+     */
+    private function gameNextAction($table) {
+        $next = $table->getNextPlayer();
+
+        // no valid actions for next player -> perform next game step 
+        if ($this->validAction($next) == FALSE) {
+            $this->collectBets($table);
+            // get last deal
+            $actions = $table->game->getTurnActions();
+
+            switch ($actions['deal']->action) {
+                case 'river':
+                    $this->gameShowdown($table);
+                    break;
+                case 'turn':
+                    $this->gameDealCards($table, 'river');
+                    break;
+                case 'flop':
+                    $this->gameDealCards($table, 'turn');
+                    break;
+                case 'deal':
+                default:
+                    $this->gameDealCards($table, 'flop');
+                    break;
+            }
+        }//*/
     }
 
     /**
      * Collect all bets into pot and erase player's temp. pots.
      */
     private function collectBets($table) {
+        $bets = array();
+        $pots = array();
+        $sub = array();
+        $allin = FALSE;
+
+        // find max player bet (if at least on player all-in)
     	foreach ($table->players as $key => $player) {
-    		$table->game->pot += $player->bet;
-    		$player->bet = 0;
-    		$player->save();
+            if ($player->bet > 0) {
+                $bets[$key] = $player->bet;
+                if ($player->stack == 0) {
+                    $allin[] = $player;
+                }
+                $player->bet = 0;
+            }
     	}
+        asort($bets);
+        $max = (count($bets) > 0) ? max($bets) : 0;
+        $min = (count($bets) > 0) ? min($bets) : 0;
+        if ($max == 0) {
+            return;
+        } elseif ($max == $min || $allin == FALSE) {
+            // normal behaviour
+            foreach ($bets as $key => $value) {
+                $pots[0] += $value;
+                $table->players[$key]->pot = 0;
+            }
+        } else {
+            $single = FALSE;
+
+            // create side pots
+            foreach ($bets as $key => $value) {
+                $k = 0;
+                // fill existing pots
+                foreach ($pots as $k => $v) {
+                    if ($single['key'] == $k) {
+                        $single = FALSE;
+                        if ($single['fold'] == TRUE) {
+                            $sub[$k] = $value;
+                        }
+                    }
+                    $pots[$k] += $sub[$k];
+                    $value -= $sub[$k];
+                }
+                // create new pot, if bet value remaining
+                if ($value != 0) {
+                    $pots[] = $value;
+                    $sub[] = $value;
+                    $single = array(
+                        'key' => $k+1,
+                        'player' => $key,
+                        'fold' => $table->players[$key]->fold
+                    );
+                }
+                end($pots);
+                $table->players[$key]->pot = key($pots);
+            }
+
+            // remove single player pot (overflow from all-in)
+            if ($single !== FALSE) {
+                $table->players[$single['player']]->stack += $pots[$single['key']];
+                $table->players[$single['player']]->pot = $table->players[$single['player']]->pot - 1;
+                unset($pots[$single['key']]);
+            }
+        }
+
+        // add pots to game
+        $offset = $table->game->addPots($pots, $allin);
+        foreach ($bets as $key => $value) {
+            $table->players[$key]->pot += $offset;
+            $table->players[$key]->save();
+        }
     	$table->game->save();
     }
 
@@ -368,46 +591,91 @@ class Pokers extends BackendController {
      * @param object $table The poker table object.
      * @param array $players The players remaining at the end of the game.
      */
-    private function gameShowdown($table, $players) {
-    	// TODO: rules for all in / split pots
+    private function gameShowdown($table) {
+        $action_c = FALSE;
+        $players = $table->getActivePlayers();
+
     	if (count($players) > 1) {
-    		// eval remaining player's hands and determine the winner
-    		$score = array();
-    		$public = array(
-    			$table->game->turn, 
-    			$table->game->river,
-    		);
-    		$action_c = array();
-    		foreach ($players as $key => $player) {
-    			$private = array($player->c1, $player->c2);
-    			$score[$key] = PokerEval::score(array_merge($table->game->flop, $public, $private));
-    			$action_c[$player->user->id] = array($player->c1->id, $player->c2->id);
-    		}
-    		$winner = max($score);
-    		$winners = array_keys($score, $winner);
-    		//$winner_cards = PokerEval::winnerCardsAndSuit($winner);
-    		//$winner_cards = PokerEval::readable_hand($winner);
+            // eval remaining player's hands and determine the winner
+            $action_c = array();
+            $public = array(
+                $table->game->turn, 
+                $table->game->river,
+            );
+            foreach ($table->game->flop as $key => $value) {
+                $public[] = $value;
+            }
+
+            foreach ($table->game->pot as $key => $value) {  
+                $score = array();
+
+                foreach ($players as $pos => $player) {
+                    // get players for current pot
+                    if ($player->pot >= $key) {
+                        $private = array($player->cards[0], $player->cards[1]);
+                        $score[$pos] = PokerEval::score(array_merge($public, $private));
+                    }     
+                    $action_c[$player->position] = array($player->cards[0]->id, $player->cards[1]->id);
+                }
+
+                $winner[$key] = max($score);
+                $winners[$key] = array_keys($score, $winner[$key]);
+            }
     	} else {
-    		$winners = array(key($players));
+            foreach ($table->game->pot as $key => $value) {
+                $winners[$key] = array(key($players));
+            }
     	}
     	
     	// transfer pot to the winning player's stack(s).
-    	$winner_pot = $table->game->pot/count($winners);
-    	$action_w = array();
-    	foreach ($winners as $key) {
-    		$players[$key]->stack += $winner_pot;
-    		$players[$key]->save();
-    		$action_w[$players[$key]->user->id] = $winner_pot;
-    	}
+        $action_w = array();
+        foreach ($table->game->pot as $key => $value) {
+            $winner_pot = round($value/count($winners[$key]));
+            // transfer each sidepot to the respective winner
+            foreach ($winners[$key] as $w) {
+                $players[$w]->stack += $winner_pot;
+                $players[$w]->save();
+                $action_w[$players[$w]->position] += $winner_pot;
+            }
+        }
+
+        // returns raw card values (in [0]) + suit name (in [1]), if applicable for this hand
+        // may be used to highlight the winning hand (all five cards), jquery-mapper into card value nessecary
+        // PokerEval::winnerCardsAndSuit($winner); 
 
     	// save corresponding action
-    	$action = new PokerAction($table->game, 'showdown', array(
-    		'winners' => $action_w,
-    		'winning_hand' => PokerEval::readable_hand($winner),
-    		'cards' => $action_c
-    	));
-    	$action->save();
+        $game = $this->getGameInfo($table->id);
+        unset($game['log']);
 
+        if ($action_c == FALSE) {
+            $action = new PokerAction($table->game, 'showdown', array(
+                'winners' => $action_w,
+                'player_hands' => $action_c,
+                'winning_hand' => FALSE,
+                'cards' => FALSE,
+                'suit' => FALSE,
+                'game' => $game // backup game info for frontend transition/ display of showdown
+            ));
+            $action->save();
+        } else {
+            // save all winning hands (for each sidepot)
+            foreach ($winner as $key => $value) {
+                $wc = PokerEval::winnerCardsAndSuit($value);
+                $cards[] = array_keys($wc[0]);
+                $suit[] = $wc[1];
+                $hand[] = PokerEval::readableHand($value);
+            }
+            $action = new PokerAction($table->game, 'showdown', array(
+                'winners' => $action_w,
+                'player_hands' => $action_c,
+                'winning_hand' => $hand,
+                'cards' => $cards,
+                'suit' => $suit,
+                'game' => $game // backup game info for frontend transition/ display of showdown
+            ));
+            $action->save();
+        }
+        
     	// start a new game
     	$this->gameNew($table);
     } 
@@ -443,6 +711,11 @@ class Pokers extends BackendController {
 				$action->save();
     			break;
     	}
+        if (is_object($action)) {
+            $table->game->actions[] = $action;
+            // call next game step, if no valid player action (= all-in)
+            $this->gameNextAction($table);
+        }
     }
 
     /**
@@ -455,35 +728,34 @@ class Pokers extends BackendController {
 
     	// check for player leaves and joins
     	foreach ($table->players AS $key => $player) {
-    		if ($player->leave == TRUE) {
+    		if ($player->leave == TRUE || $player->stack == 0) {
     			$table->removePlayer($key);
     			$player->delete();
     			$player_change = TRUE;
 
-    			// only one (or no) player left, so don't start a new game
-    			$player_count = count($table->players);
-    			if ($player_count <= 1) {
-    				return FALSE;
-    			} elseif ($player_count == 2) {
-
-    			}
-    			continue;
+                // only one (or no) player left, so don't start a new game
+                if (count($table->players) <= 1) {
+                    $table->game = FALSE;
+                    $table->save();
+                    return FALSE;
+                }
        		} elseif ($player->join == TRUE) {
     			$player->join = FALSE;
+                $table->addPlayer($key);
     			$player_change = TRUE;
     		}
 		}
 
     	// create card deck and deal cards
-    	$objDeck = new Deck();
+    	$objDeck = new PokerDeck();
 		$objDeck->shuffle();
 
 		foreach ($table->players AS $player) {
 			// erase last action
 			$player->last_action = NULL;
 			// deal cards
-			$player->c1 = $objDeck->next();
-			$player->c2 = $objDeck->next();
+			$player->cards = Array($objDeck->next(), $objDeck->next());
+            $player->pot = 0;
 			$player->save();
 
 			$players[] = array(
@@ -519,8 +791,8 @@ class Pokers extends BackendController {
     	$action->save();
 
     	// Blinds
-    	$this->postBlind($table->players[$table->positions['bigblind']], 'big');
     	$this->postBlind($table->players[$table->positions['smallblind']], 'small');
+        $this->postBlind($table->players[$table->positions['bigblind']], 'big');
 
     	$this->gameDealCards($table, 'deal');
     }
@@ -535,10 +807,106 @@ class Pokers extends BackendController {
     	$value = $player->table->blinds[$blind];
     	$player->bet = $value;
     	$player->stack -= $value;
+        $player->save();
 
     	// new action
-    	$action = new PokerAction($player->table->game, $blind.'blind', array('value' => $value), $player);
+    	$action = new PokerAction($player->table->game, 'blind', array('blind' => $blind, 'value' => $value), $player);
     	$action->save();
+    }
+
+    /**
+     * Translate game actions into a human readable format.
+     *
+     * @param array $actions The Action objects (PokerAction)
+     * @return array An array of strings representing / describing the actions.
+     */
+    private function getActionLog($actions) {
+        $log = array();
+        $deal = false;
+
+        // translate actions into readable log messages
+        foreach ($actions as $key => $action) {
+            switch ($action->action) {
+                case 'new':
+                    $log[] = 'Game'.$action->game->id.' *****';
+                    $log[] = "NL Texas Hold'em - ".date('l, F d, H:i:s e Y', $action->time); //Monday, March 07, 02:55:51 EST 2011
+                    $log[] = 'Table '.$action->table->title.' ('.$action->table->id.')';
+                    $log[] = 'Seat '.$action->params['button'].' is the button';
+                    $log[] = 'Total number of players: '.count($action->params['players']).'/'.$action->table->seats;
+                    foreach ($action->params['players'] as $key => $player) {
+                        $log[] = 'Seat '.$player['position'].': '.$player['name'].' ( '.$player['stack'].' )';
+                    }
+                    break;
+                case 'deal':
+                    if ($deal == false) {
+                        $log[] = '** Dealing down cards **';
+                        $deal = true;
+                    }
+                    if ($action->player->user === $this->s->user) {
+                        $card1 = new PokerCard($action->params[0]);
+                        $card2 = new PokerCard($action->params[1]);
+                        $log[] = 'Dealt to '.$this->s->user->realname.' [ '.$card1->shortname().', '.$card2->shortname().' ]';
+                    }
+                    break;
+                case 'flop':
+                    $card1 = new PokerCard($action->params[0]);
+                    $card2 = new PokerCard($action->params[1]);
+                    $card3 = new PokerCard($action->params[2]);
+                    $log[] = '** Dealing Flop ** [ '.$card1->shortname().', '.$card2->shortname().', '.$card3->shortname().' ]';
+                    break;
+                case 'turn':
+                    $card = new PokerCard($action->params[0]);
+                    $log[] = '** Dealing Turn ** [ '.$card->shortname().' ]';
+                    break;
+                case 'river':
+                    $card = new PokerCard($action->params[0]);
+                    $log[] = '** Dealing River ** [ '.$card->shortname().' ]';
+                    break;
+                case 'blind':
+                    $log[] = $action->player->user->realname.' posts '.$action->params['blind'].' blind ['.$action->params['value'].']';
+                    break;
+                case 'check':
+                    $log[] = $action->player->user->realname.' checks';
+                    break;
+                case 'call':
+                    $log[] = $action->player->user->realname.' calls ['.$action->params['value'].']';
+                    break;
+                case 'bet':
+                    $log[] = $action->player->user->realname.' bets ['.$action->params['value'].']';
+                    break;
+                case 'raise':
+                    $log[] = $action->player->user->realname.' raises ['.$action->params['value'].']';
+                    break;
+                case 'fold':
+                    $log[] = $action->player->user->realname.' folds';
+                    break;
+                case 'showdown':
+                    // TODO: HEM-Messages (also multiple pots!)
+                    if ($action->params['player_hands'] == FALSE) { // all others folded
+                        foreach ($action->params['winners'] AS $key => $value) {
+                            $log[] = $action->params['game']['players'][$key]['name'].' does not show cards.';
+                        }
+                    } else { // real showdown
+                        foreach ($action->params['player_hands'] AS $key => $value) {
+                            $card1 = new PokerCard($value[0]);
+                            $card2 = new PokerCard($value[1]);
+                            $log[] = $action->params['game']['players'][$key]['name'].' shows [ '.$card1->shortname().', '.$card2->shortname().' ]';
+                        }
+                        foreach ($action->params['winning_hand'] as $key => $value) {
+                            $log[] = 'Winning hand: '.$value;
+                        }
+                    }
+                    foreach ($action->params['winners'] AS $key => $value) {
+                        $log[] = $action->params['game']['players'][$key]['name'].' wins '.$value;
+                    } 
+
+                    $log[] = ''; // empty line before next game
+                    break;
+
+            }
+        }
+
+        return $log;
     }
 }
 ?>

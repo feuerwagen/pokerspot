@@ -1,10 +1,57 @@
-##################################
-#        Changelog Poker         #
-##################################
+Changelog Poker
+===============
 
-Version 0.1a ---- Release: 10/2012
-----------------------------------
+Version 0.4b ---- Release: ??
+-----------------------------
 Feature
-# Belegungstabellen
-# Bearbeiten von Belegungen
-# Schriftverkehr
+# Chat-Funktion pro Tisch
+# Stacks pro User
+# Export des Spiel-Logs als Textdatei (HEM-kompatibel)
+
+Version 0.3b ---- Release: ??
+-----------------------------
+Feature
+# Einstellung von Spots (preflop)
+
+Version 0.2a ---- Release: ??
+-----------------------------
+Feature
+# Verwaltung der verfügbaren Tische (Plätze, Blinds, Spot)
+
+Version 0.1.3a ---- Release: 19/11/2012
+---------------------------------------
+Improvement
+# Anzeige der Spielkarten
+# Anzeige der Player-Bets
+# Anpassung der Bedienelemente für das Spiel
+# Verbesserung der Benutzeroberfläche (Pokerspiel)
+
+Bugfix
+# Player Actions im Heads-Up in der falschen Reihenfolge
+# Korrekte Behandlung von All-in-Situationen und Spielern ohne Geld
+# Fixes für showdown nach fold
+
+Version 0.1.2a ---- Release: 17/11/2012
+---------------------------------------
+Improvement
+# Anzeige zum Spielende (Gewinner, Gewinnsumme, Gewinnerhand)
+# Verbesserte Anzeige von Player-Bets und Dealer-Button
+# Anzeige von Join / Leave-Vorgängen
+# Spieler am Zug wird hervorgehoben
+
+Bugfix
+# Join Table
+# Leave Table
+
+Version 0.1.1a ---- Release: 16/11/2012
+---------------------------------------
+Improvement
+# Buyin mindestens 100*Bigblind statt 10*
+
+Bugfix
+# Anzeige der möglichen Aktionen im Bigblind
+
+Version 0.1a ---- Release: 16/11/2012
+-------------------------------------
+Feature
+# Pokerspiel an festgelegten Tischen
