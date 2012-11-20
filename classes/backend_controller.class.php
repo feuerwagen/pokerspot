@@ -87,7 +87,7 @@ abstract class BackendController extends SiteController {
 	/**
     * Build the requestet HTML file
     */
-    protected function buildSite($content = '') {
+    protected function buildSite($content = '', $clean = false) {
 		if ($this->s->post['call'] == 'ajax') {
 			if (empty(Error::$messages)) {
 				echo $content;
@@ -122,6 +122,7 @@ abstract class BackendController extends SiteController {
 	        $tpl->assign('subnav', $m['sub']); // $subnav dito
 	        $tpl->assign('path', $this->s->getPath());
 			$tpl->assign('user', $this->s->user);
+			$tpl->assign('clean', $clean);
 	        $tpl->assign('messages', Error::$messages);
 			$tpl->assign('buttons', $b); // buttons for right toolbar
 	        $tpl->assign('content', $content); // $content should be a single string
