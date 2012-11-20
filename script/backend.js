@@ -8,13 +8,14 @@ function updatePath(hash) {
 // display error messages after form submission
 function displayMessage(messages) {
 	if (typeof messages == 'object') {
-		var all = '';
+		var all = '', error = false;
 		$.each(messages, function(type, val){
 			var text = '';
 			$.each(val, function(ind, msg) {
 				text += '<p>' + msg + '</p>';
 			})
 			all += '<div class="'+type+'">'+text+'</div>';
+			if (type == 'error') error = true;
 		});
 	 						
 		if ($('#messages').size() == 0) {
@@ -25,7 +26,11 @@ function displayMessage(messages) {
 				$('#messages').html(all).slideDown();
 			});
 		}
-		$('#content, #fixed').find('div.message').delay(1500).fadeOut();
+		$('#content, #fixed').find('#messages').click(function() {
+			$(this).fadeOut();
+		});
+		if (error == false)
+			$('#content, #fixed').find('#messages div').delay(1500).fadeOut();
 	}
 }
 
@@ -208,7 +213,6 @@ function getButtons($elem) {
 
 function openDialog($link) {
 	$('#messages').remove();
-	//console.log($link.attr('class'));
 	var b = getButtons($link);
 	$('#dialog').load($link.attr('href'), {call: 'ajax'}).dialog({
 		modal: true,
@@ -216,7 +220,7 @@ function openDialog($link) {
 		show: 'fade',
 		hide: 'fade',
 		width: parseInt($link.url().param('width')),
-		height:  parseInt($link.url().param('height')),
+		height: parseInt($link.url().param('height')),
 		maxWidth: $(window).width(),
 		maxHeight: $(window).height(),
 		buttons: b
@@ -226,32 +230,51 @@ function openDialog($link) {
 $(document).ready(function() {	
 	// error messages for ajax calls	
 	$.ajaxSetup({
-		error: function(x,e) {
-			var all;
-			if(x.status==0) {
-				all = 'Keine Verbindung zum Server möglich!\n Prüfe bitte Deine Netzwerkverbindung.';
-			} else if(x.status==404) {
-				all = 'Bitte den Administrator benachrichtigen: Die aufgerufene URL wurde nicht gefunden.';
-			} else if(x.status==500) {
-				all = 'Bitte den Administrator benachrichtigen: Interner Server-Fehler.';
-			} else if(e=='parsererror') {
-				all = 'Bitte den Administrator benachrichtigen: Einlesen der empfangenen JSON-Daten fehlgeschlagen.';
-			} else if(e=='timeout') {
-				all = 'Bitte den Administrator benachrichtigen: Anfrage wurde abgebrochen.';
-			} else {
-				all = 'Bitte den Administrator benachrichtigen: Unbekannter Fehler.\n'+x.responseText;
-			}
-			
-			// display message box
-			if ($('#messages').size() == 0) {
-				el = ($('#fixed').size() == 0) ? '#content' : '#fixed';
-				$('<div id="messages"></div>').html('<div class="error">'+all+'</div>').prependTo(el).slideDown();
-			} else {
-				$('#messages').fadeOut('fast', function(){
-					$('#messages').html('<div class="error">'+all+'</div>').slideDown();
-				});
-			}
+        error: function(jqXHR, exception) {
+            if (jqXHR.status === 0) {
+                all = 'Not connect.\n Verify Network.';
+            } else if (jqXHR.status == 404) {
+                all = 'Requested page not found. [404]';
+            } else if (jqXHR.status == 500) {
+                all = 'Internal Server Error [500].';
+            } else if (exception === 'parsererror') {
+                all = 'Requested JSON parse failed.';
+                console.log(jqXHR.responseText);
+            } else if (exception === 'timeout') {
+                all = 'Time out error.';
+            } else if (exception === 'abort') {
+                all = 'Ajax request aborted.';
+            } else {
+                all = 'Uncaught Error.<br><br>' + jqXHR.responseText;
+                console.log(jqXHR.responseText);
+            }
+
+            displayMessage({'error': [all]});
+        }
+    });
+
+	$(document).ajaxError(function(e,xhr,settings,exception) {
+		var all;
+		if(xhr.status==0) {
+			all = 'Keine Verbindung zum Server möglich!\n Prüfe bitte Deine Netzwerkverbindung.';
+		} else if(xhr.status==404) {
+			all = 'Bitte den Administrator benachrichtigen: Die aufgerufene URL wurde nicht gefunden.';
+		} else if(xhr.status==500) {
+			all = 'Bitte den Administrator benachrichtigen: Interner Server-Fehler.';
+		} else if(e=='parsererror') {
+			all = 'Bitte den Administrator benachrichtigen: Einlesen der empfangenen Daten fehlgeschlagen.';
+			console.log(xhr.responseText);
+		} else if(e=='timeout') {
+			all = 'Bitte den Administrator benachrichtigen: Anfrage wurde abgebrochen.';
+		} else {
+			all = 'Bitte den Administrator benachrichtigen: Unbekannter Fehler.<br><br>'+xhr.responseText;
+			console.log(xhr.responseText);
+			console.log(e);
+			console.log(exception);
 		}
+
+		displayMessage({'error': [all]});
+	
 	});
 	
 	// JqueryUI dialog for forms and confirmations
