@@ -1,0 +1,552 @@
+#pokertable {
+	height: 550px;
+}
+
+#ptable {
+	background: #78db78; /* Old browsers */
+	background: -moz-radial-gradient(center, ellipse cover, #78db78 0%, #67c667 17%, #52b152 33%, #008a00 67%, #005700 83%, #005904 100%); /* FF3.6+ */
+	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#78db78), color-stop(17%,#67c667), color-stop(33%,#52b152), color-stop(67%,#008a00), color-stop(83%,#005700), color-stop(100%,#005904)); /* Chrome,Safari4+ */
+	background: -webkit-radial-gradient(center, ellipse cover, #78db78 0%,#67c667 17%,#52b152 33%,#008a00 67%,#005700 83%,#005904 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-radial-gradient(center, ellipse cover, #78db78 0%,#67c667 17%,#52b152 33%,#008a00 67%,#005700 83%,#005904 100%); /* Opera 12+ */
+	background: -ms-radial-gradient(center, ellipse cover, #78db78 0%,#67c667 17%,#52b152 33%,#008a00 67%,#005700 83%,#005904 100%); /* IE10+ */
+	background: radial-gradient(ellipse at center, #78db78 0%,#67c667 17%,#52b152 33%,#008a00 67%,#005700 83%,#005904 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#78db78', endColorstr='#005904',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+	border: 1px solid #3d3d3d;
+	border-radius: 175px;
+	height: 350px;
+	margin: 30px;
+	margin-bottom: 10px;
+	position: relative;
+}
+
+.player, .cards {
+	position: absolute;
+}
+
+.cards {
+	top: 100px;
+	left: 50%;
+	width: 315px; /* 5*60px + 5*3px */
+	height: 94px;
+}
+
+.cards > div {
+	position: relative;
+	left: -50%;
+}
+
+.cards .pot {
+	clear: both;
+	font-size: 1.5em;
+	font-weight: bold;
+	padding-top: 10px;
+}
+
+.card {
+	width: 60px;
+	height: 84px;
+	background: url(../images/cards.png);
+	float: left;
+	margin-right: 3px;
+}
+
+/* controls */
+
+#plog {
+	width: 250px;
+	float: right;
+	margin: 0 10px;
+}
+
+#plog textarea {
+	margin: 0px;
+	width: 240px;
+	height: 100px;
+}
+
+#pcontrols {
+	width: 330px;
+	margin-left: 300px;
+	position: relative;
+}
+
+#pcontrols div.pbet {
+	border: 1px solid #d3d3d3;
+	border-radius: 4px;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	padding: 2px;
+}
+
+#pcontrols button.big {
+	font-size: 1.5em;
+}
+
+#pcontrols button.big span {
+	padding: .3em .5em;
+}
+
+#radio {
+	margin: 2px 0 0 2px;
+}
+
+#radio button {
+	width: 48px;
+}
+
+#pcontrols button.small {
+	font-size: 0.9em;
+}
+
+#pcontrols button.small span {
+	padding: .3em 1em;
+}
+
+#p_bet_raise {
+	width: 90px;
+	margin: 0px;
+}
+
+#p_check_call {
+	width: 150px;
+}
+
+#p_fold {
+	width: 75px;
+}
+
+#p_bet_value {
+	display: block;
+	margin: 0;
+	margin-top: 5px;
+	width: 78px;
+	height: 20px;
+}
+
+/* players */
+
+.player {
+	background-color: rgba(178,178,178,0.67);
+	width: 126px; /* 2*60px + 3*3px */
+	height: 79px;
+	position: absolute;
+	padding: 3px;
+	padding-right: 0px;
+}
+
+.player .stack {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.player .pot {
+	position: absolute;	
+}
+
+.player .card {
+	height: 47px;
+}
+
+.winner {
+	background-color: rgba(255,255,255,0.8);
+}
+
+.winner .win {
+	color: green;
+	font-weight: bold;
+}
+
+.folded {
+	opacity: 0.5;
+}
+
+.pactive {
+	background-color: rgba(0,0,0,0.59);
+	color: #fff;
+}
+
+.leave {
+	display: none;
+	position: absolute;
+	bottom: 1px;
+	left: 1px;
+}
+
+.leave span {
+	padding: .3em .6em !important;
+}
+
+.msg_leave {
+	display: none;
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	left: 0px;
+	padding: 3px;
+	background-color: rgba(0,0,0,0.7);
+	color: #fff;
+}
+
+.player:hover .leave, .player:hover .msg_leave {
+	display: block;
+}
+
+.pcover {
+	background-color: rgba(255,255,255,0.5);
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
+
+.spin {
+	background: url(../images/jquery-ui/ui-anim_basic_16x16.gif) no-repeat 50% 50%;
+}
+
+.pbutton {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	background: #860303;
+	font-weight: bold;
+	font-size: .8em;
+	border-radius: 10px;
+	line-height: 20px;
+	text-align: center;
+	box-shadow: 1px 1px 2px #3a3a3a;
+	color: #fff;
+}
+
+.pot {
+	font-size: 1.2em;
+	color: #fff;
+	font-weight: bold;
+}
+
+/* positioning */
+
+.player_1 .pbutton {
+	top: -10px;
+	right: -30px;
+}
+
+.player_2 .pbutton, .player_3 .pbutton, .player_4 .pbutton {
+	bottom: -20px;
+	left: 0px;
+}
+
+.player_5 .pbutton, .player_6 .pbutton {
+	bottom: -10px;
+	right: -30px;
+}
+
+.player_7 .pbutton {
+	bottom: -10px;
+	left: -30px;
+}
+
+.player_8 .pbutton, .player_9 .pbutton, .player_10 .pbutton {
+	bottom: -20px;
+	right: 0px;
+}
+
+.player_1 {
+	bottom:0px; left:350px;
+}
+
+.player_1 .pot {
+	top:-20px;
+}
+
+.player_2 {
+	bottom:20px; left:0px;
+}
+
+.player_2 .pot {
+	left: 145px;
+	top: 0px;
+}
+
+.player_3 {
+	top:120px; left:-30px;
+}
+
+.player_3 .pot {
+	left: 145px;
+	top: 50%;
+}
+
+.player_4 {
+	top:-10px; left:0px;
+}
+
+.player_4 .pot {
+	left: 125px;
+	bottom: -20px;
+}
+
+.player_5 {
+	top:-40px; left:170px;
+}
+
+.player_5 .pot {
+	bottom: -20px;
+	left: 30%;
+}
+
+.player_6 {
+	top:-40px; left:345px;
+}
+
+.player_6 .pot {
+	bottom: -20px;
+}
+
+.player_7 {
+	top:-40px; right:170px;
+}
+
+.player_7 .pot {
+	bottom: -20px;
+	right: 30%;
+}
+
+.player_8 {
+	top:-10px; right:0px;
+}
+
+.player_8 .pot {
+	right: 125px;
+	bottom: -20px;
+}
+
+.player_9 {
+	top:120px; right:-30px;
+}
+
+.player_9 .pot {
+	right: 145px;
+	top: 50%;
+}
+
+.player_10 {
+	bottom:20px; right:0px;
+}
+
+.player_10 .pot {
+	right: 145px;
+	top: 0px;
+}
+
+.card_0 {
+	background-position: 0 0;
+}
+
+.card_1 {
+	background-position: -60px 0;
+}
+
+.card_2 {
+	background-position: -120px 0;
+}
+
+.card_3 {
+	background-position: -180px 0;
+}
+
+.card_4 {
+	background-position: -240px 0;
+}
+
+.card_5 {
+	background-position: -300px 0;
+}
+
+.card_6 {
+	background-position: -360px 0;
+}
+
+.card_7 {
+	background-position: -420px 0;
+}
+
+.card_8 {
+	background-position: -480px 0;
+}
+
+.card_9 {
+	background-position: -540px 0;
+}
+
+.card_10 {
+	background-position: -600px 0;
+}
+
+.card_11 {
+	background-position: -660px 0;
+}
+
+.card_12 {
+	background-position: -720px 0;
+}
+
+.card_13 {
+	background-position: 0 -84px;
+}
+
+.card_14 {
+	background-position: -60px -84px;
+}
+
+.card_15 {
+	background-position: -120px -84px;
+}
+
+.card_16 {
+	background-position: -180px -84px;
+}
+
+.card_17 {
+	background-position: -240px -84px;
+}
+
+.card_18 {
+	background-position: -300px -84px;
+}
+
+.card_19 {
+	background-position: -360px -84px;
+}
+
+.card_20 {
+	background-position: -420px -84px;
+}
+
+.card_21 {
+	background-position: -480px -84px;
+}
+
+.card_22 {
+	background-position: -540px -84px;
+}
+
+.card_23 {
+	background-position: -600px -84px;
+}
+
+.card_24 {
+	background-position: -660px -84px;
+}
+
+.card_25 {
+	background-position: -720px -84px;
+}
+
+.card_26 {
+	background-position: 0 -168px;
+}
+
+.card_27 {
+	background-position: -60px -168px;
+}
+
+.card_28 {
+	background-position: -120px -168px;
+}
+
+.card_29 {
+	background-position: -180px -168px;
+}
+
+.card_30 {
+	background-position: -240px -168px;
+}
+
+.card_31 {
+	background-position: -300px -168px;
+}
+
+.card_32 {
+	background-position: -360px -168px;
+}
+
+.card_33 {
+	background-position: -420px -168px;
+}
+
+.card_34 {
+	background-position: -480px -168px;
+}
+
+.card_35 {
+	background-position: -540px -168px;
+}
+
+.card_36 {
+	background-position: -600px -168px;
+}
+
+.card_37 {
+	background-position: -660px -168px;
+}
+
+.card_38 {
+	background-position: -720px -168px;
+}
+
+.card_39 {
+	background-position: 0 -252px;
+}
+
+.card_40 {
+	background-position: -60px -252px;
+}
+
+.card_41 {
+	background-position: -120px -252px;
+}
+
+.card_42 {
+	background-position: -180px -252px;
+}
+
+.card_43 {
+	background-position: -240px -252px;
+}
+
+.card_44 {
+	background-position: -300px -252px;
+}
+
+.card_45 {
+	background-position: -360px -252px;
+}
+
+.card_46 {
+	background-position: -420px -252px;
+}
+
+.card_47 {
+	background-position: -480px -252px;
+}
+
+.card_48 {
+	background-position: -540px -252px;
+}
+
+.card_49 {
+	background-position: -600px -252px;
+}
+
+.card_50 {
+	background-position: -660px -252px;
+}
+
+.card_51 {
+	background-position: -720px -252px;
+}
+
+.card_blank {
+	background-position: 0px -336px;
+}

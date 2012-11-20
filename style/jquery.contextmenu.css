@@ -174,7 +174,7 @@ li.separator {
 	background-position: 5px -120px;
 }
 
-.contextMenu li.transfer a { 
+.contextMenu li.transfer a, .hoverBar li.transfer a { 
 	background-image: url(../images/buttons/normal/b_transfer.png);
 }
 

@@ -163,6 +163,13 @@ div.error, div.message, div.warning {
 	margin: 0px;
 }
 
+.poker #messages {
+	position: absolute;
+	top: 30px;
+	width: 100%;
+	z-index: 1000000;
+}
+
 /* mark */
 .true {
 	color: #33a333;
@@ -519,138 +526,6 @@ button.ui-state-hover .icon-delete {
 
 
 /* @end */
-/* @group Poker Table */
-
-#pokertable {
-	height: 550px;
-}
-
-#ptable {
-	background: #78db78; /* Old browsers */
-	background: -moz-radial-gradient(center, ellipse cover, #78db78 0%, #67c667 17%, #52b152 33%, #008a00 67%, #005700 83%, #005904 100%); /* FF3.6+ */
-	background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,#78db78), color-stop(17%,#67c667), color-stop(33%,#52b152), color-stop(67%,#008a00), color-stop(83%,#005700), color-stop(100%,#005904)); /* Chrome,Safari4+ */
-	background: -webkit-radial-gradient(center, ellipse cover, #78db78 0%,#67c667 17%,#52b152 33%,#008a00 67%,#005700 83%,#005904 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-radial-gradient(center, ellipse cover, #78db78 0%,#67c667 17%,#52b152 33%,#008a00 67%,#005700 83%,#005904 100%); /* Opera 12+ */
-	background: -ms-radial-gradient(center, ellipse cover, #78db78 0%,#67c667 17%,#52b152 33%,#008a00 67%,#005700 83%,#005904 100%); /* IE10+ */
-	background: radial-gradient(ellipse at center, #78db78 0%,#67c667 17%,#52b152 33%,#008a00 67%,#005700 83%,#005904 100%); /* W3C */
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#78db78', endColorstr='#005904',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-	border: 1px solid #3d3d3d;
-	border-radius: 175px;
-	height: 350px;
-	margin: 30px;
-	margin-bottom: 10px;
-	position: relative;
-}
-
-.player, .cards {
-	position: absolute;
-}
-
-.card {
-	width: 60px;
-	height: 94px;
-	background: url(../images/cards_small.png);
-	float: left;
-	margin-right: 3px;
-}
-
-.player {
-	background-color: rgba(178,178,178,0.67);
-	width: 126px; /* 2*60px + 3*3px */
-	height: 79px;
-	position: absolute;
-	padding: 3px;
-	padding-right: 0px;
-}
-
-.player .stack {
-	font-size: 1.2em;
-	font-weight: bold;		
-	float: left;
-}
-
-.player .pot {
-	float: right;	
-	margin-right: 3px;	
-}
-
-.player .card {
-	height: 47px;
-}
-
-.cards {
-	top: 100px;
-	left: 50%;
-	width: 315px; /* 5*60px + 5*3px */
-	height: 94px;
-}
-
-.cards > div {
-	position: relative;
-	left: -50%;
-}
-
-.cards .pot {
-	clear: both;
-	font-size: 1.5em;
-	font-weight: bold;
-	padding-top: 10px;
-}
-
-#plog {
-	width: 250px;
-	float: right;
-	margin: 0 10px;
-}
-
-#plog textarea {
-	margin: 0px;
-	width: 240px;
-	height: 100px;
-}
-
-#pcontrols {
-	width: 304px;
-	margin-left: 300px;
-	position: relative;
-}
-
-#pcontrols div.pbet {
-	border: 1px solid #d3d3d3;
-	border-radius: 4px;
-	position: absolute;
-	top: 0px;
-	right: 0px;
-}
-
-#pcontrols button.big {
-	font-size: 1.5em;
-}
-
-#radio {
-	margin: 2px 0 0 2px;
-}
-
-#pcontrols button.small {
-	font-size: 0.9em;
-}
-
-#pcontrols button.small span {
-	padding: .3em 1em;
-}
-
-#p_check_call {
-	width: 133px;
-}
-
-#p_bet_value {
-	display: block;
-	margin: 3px 2px;
-	width: 60px;
-	height: 20px;
-}
-
-/* @end */
 /* @group Tablesorter / TableHover */
 
 th.headerSortDown, th.headerSortUp {
@@ -947,7 +822,6 @@ a#logout:active {
 
 #sidebar li {
 	border-bottom: 1px solid #a5a5a5;
-	margin-right: 15px;
 	padding: 5px 0px;
 }
 
@@ -1005,3 +879,15 @@ a#logout:active {
 }
 
 /* @end */
+
+.clean #content {
+	padding: 5px;
+	height: auto;
+}
+
+.clean #fixed {
+	bottom: 0;
+	top: 0;
+	left: 10px;
+	right: 10px;
+}

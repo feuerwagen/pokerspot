@@ -5,7 +5,7 @@
 	<li class="{if $t === $current}active{/if}" id="ptable{$id}" data-idtable="{$id}">
 		{if $t->active === true}<span class="unread">&bull;</span>{/if}
 		<h5><a href="#">{$t->title}</a></h5>
-		Plätze: {$t->seats} ({$t->seats - $t->players|@count} frei) – Blinds: {$t->blinds.small}/{$t->blinds.big}
+		Plätze: {$t->seats} ({$t->free} frei) – Blinds: {$t->blinds.small}/{$t->blinds.big}
 	</li>
 {/foreach}
 </ul>
@@ -14,7 +14,22 @@
 <script>
 $(document).ready(function() {	
 	// load first table into main window
-	//$('#pokertable').poker($('#sidebar').find('li.active').data('idtable'));
+	$('#sidebar').find('ul').poker({
+		container: '#pokertable',
+		iddefault: $('#sidebar').find('li.active').data('idtable')
+	});
+
+	$('#sidebar').find('li').hoverButtons({
+		menu: 'hoverMenu',
+		offset: '-2 5',
+		onShow: function($el) {
+			$('#hoverMenu').find('a').tipTip();
+		}
+	}, function($link, $el) {
+		$link.url().attr('file', $el.data('idtable'));
+		// open new window
+		window.open($link.attr('href'),'Poker_'+ $el.data('idtable'),'width=940,height=620');
+	});
 });
 </script>
 {/literal}
