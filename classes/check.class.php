@@ -124,6 +124,14 @@ class Check {
 					"field"=>$field, 
 					"vars"=>array($field, $parts[1]));
                 break;
+            case 'range':
+            	$check = array(
+            		'type' => 'range',
+            		'message' => $message,
+            		'field'=>$field,
+            		'vars'=> array($field, $parts[1], $parts[2])
+            	);
+            	break;
         }
         return $check;
     }
@@ -288,7 +296,7 @@ class Check {
     * only letters, underscores and one colon
     */
     public function rightstring($var) {
-        return preg_match("/^[a-zA-Z_]+:[a-zA-Z_]+$/", $this->vars[$var]);
+        return preg_match("/^[a-zA-Z_]+:[a-zA-Z_\-]+$/", $this->vars[$var]);
     }
 
     /**
@@ -368,5 +376,15 @@ class Check {
 				return false;
 		}
 		return true;
+    }
+
+    /**
+     * limit a form value to a given range of values
+     */
+    public function range($vars) {
+    	if (($vars[1] != 'inf' && $this->vars[$vars[0]] < $vars[1]) || ($vars[1] != 'inf' && $this->vars[$vars[0]] > $vars[2])) {
+    		return false;
+    	}
+    	return true;
     }
 }
