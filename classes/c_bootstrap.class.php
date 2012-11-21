@@ -27,11 +27,39 @@ require_once("classes/date.class.php"); // date operations / formatting
 * @since: chispa 0.1
 */
 function __autoload($class) {
-    $class = strtolower($class);
+    $class_orig = from_camel_case($class);
+    $parts = explode('_', $class);
     if (is_dir("modules/".$class))
         require_once("modules/".$class."/".$class.".class.php");
+    elseif (count($parts) > 1 && is_dir("modules/".$parts[0]."/".$class_orig))
+        require_once("modules/".$parts[0]."/".$class_orig."/".$class_orig.".class.php");
     else
         Error::addError('Das Modul '.$class.' ist im passenden Verzeichnis nicht vorhanden!', true);
+}
+
+/**
+ * Translates a camel case string into a string with underscores (e.g. firstName -&gt; first_name)
+ * @param    string   $str    String in camel case format
+ * @return   string           $str Translated into underscore format
+ */
+function from_camel_case($str) {
+    $str[0] = strtolower($str[0]);
+    $func = create_function('$c', 'return "_" . strtolower($c[1]);');
+    return preg_replace_callback('/([A-Z])/', $func, $str);
+}
+
+/**
+ * Translates a string with underscores into camel case (e.g. first_name -&gt; firstName)
+ * @param    string   $str                     String in underscore format
+ * @param    bool     $capitalise_first_char   If true, capitalise the first char in $str
+ * @return   string                            $str translated into camel caps
+ */
+function to_camel_case($str, $capitalise_first_char = false) {
+    if($capitalise_first_char) {
+      $str[0] = strtoupper($str[0]);
+  }
+  $func = create_function('$c', 'return strtoupper($c[1]);');
+  return preg_replace_callback('/_([a-z])/', $func, $str);
 }
 
 final class cBootstrap {     
@@ -318,7 +346,7 @@ final class cBootstrap {
 				$this->params['action'] = current($actions);
 			} else {
 				// edit current action, if submodule is loaded
-				$parts = explode('_', $this->params['action']);
+				$parts = explode('-', $this->params['action']);
 				if (count($parts) == 2)
 					$this->params['action'] = $parts[1];
 			}

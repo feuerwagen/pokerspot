@@ -49,7 +49,12 @@ abstract class BackendController extends SiteController {
 		// load module config file
 		if ($class != '')
 			$class .= '/';
-		$class .= substr(strtolower(get_class($this)), 0, -1);
+		$class .= substr(get_class($this), 0, -1);
+		$parts = explode('/', $class);
+		foreach ($parts as $key => $value) {
+			$parts[$key] = from_camel_case($value);
+		}
+		$class = implode('/', $parts);
 		$this->config = require("modules/".$class."/config.inc.php");
 		
 		// load config for sub modules (actions / menu items)
@@ -58,12 +63,12 @@ abstract class BackendController extends SiteController {
 				$sub_config = require("modules/".$class."/".$sub."/config.inc.php");
 				foreach ($sub_config['actions'] AS $area => $actions) {
 					foreach ($actions AS $name => $title)
-						$this->config['actions'][$area][$sub.'_'.$name] = $title;
+						$this->config['actions'][$area][$sub.'-'.$name] = $title;
 				}
 				
 				foreach ($sub_config['menu'] AS $section => $items) {
 					foreach ($items AS $key => $item) {
-						$item['action'] = $sub.'_'.$item['action'];
+						$item['action'] = $sub.'-'.$item['action'];
 						if ($section == 'root')
 							$this->config['menu'][$section][$key] = $item; 
 						else
@@ -331,6 +336,7 @@ abstract class BackendController extends SiteController {
 		$buttons = array();
         
 		$new = false; 
+
         // walk through the modules and get entries for the toolbar
         foreach ($modules AS $module => $name) {
             $cur_module = $this->s->loadModule($module);
@@ -354,10 +360,12 @@ abstract class BackendController extends SiteController {
 			$new = ($new) ? false : true;
         }
 
-		if (count($buttons) == 0)
+		if (count($buttons) == 0) {
 			$buttons = '';
-		else
+		} else {
 			array_multisort($priorities, SORT_NUMERIC, SORT_ASC, $buttons);
+			$buttons[0]['attr'] = str_replace(' separator', '', $buttons[0]['attr']);
+		}
 
 		return $buttons;
     }
@@ -478,7 +486,7 @@ abstract class BackendController extends SiteController {
 							return false;
 						$link .= '/'.$item['action'];
 						if (isset($item['element'])) {
-							$link .= '/'.$item['element'].'.html';
+							$link .= '/'.$item['element'];
 						}
 						$link .= $item['params'];
 					}

@@ -56,7 +56,8 @@ abstract class SiteController {
     */
     static public function getInstance($name) {
 		if(!is_object(self::$objects[$name])) {
-            self::$objects[$name] = new $name();
+			$class = to_camel_case($name, TRUE);
+            self::$objects[$name] = new $class();
         }
         return self::$objects[$name];
     }
@@ -70,7 +71,7 @@ abstract class SiteController {
 	static public function factory($class, $module, $action) {
 		$name = $module.'s';
 		if ($action != '') {
-			$r = explode('_', $action);
+			$r = explode('-', $action);
 			// sub or main module?
 			if (count($r) == 2) {
 				$name = $r[0].'s';
