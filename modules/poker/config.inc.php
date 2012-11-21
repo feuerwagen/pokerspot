@@ -16,6 +16,8 @@
 */
 
 return array(
+    // sub modules
+    'sub' => array('poker_table', 'poker_spot'),
 	// possible module actions
 	'actions' => array(
 		'form' => array(
@@ -32,8 +34,6 @@ return array(
 		'backend' => array(
 			'play' => '',
             'show' => '',
-            'tables' => 'Pokertische verwalten', // display the list of poker tables
-            'spots' => 'Spots verwalten', // display the list of poker spots
 		),
 	),
 	// menu items for the backend
@@ -48,16 +48,6 @@ return array(
                 'action' => 'play',
                 'title' => 'Spielen',
                 'priority' => 1
-            ),
-            array(
-                'action' => 'tables',
-                'title' => 'Tische',
-                'priority' => 2
-            ),
-            array(
-                'action' => 'spots',
-                'title' => 'Spots',
-                'priority' => 3
             ),
         )
 	),

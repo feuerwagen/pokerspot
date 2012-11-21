@@ -1,0 +1,61 @@
+<div id="tables">
+<table>
+<thead>
+    <tr>
+        <th>Aktiv</th>
+        <th>Name</th>
+        <th>Plätze (davon frei)</th>
+        <th>Blinds</th>
+        <th>Spot</th>
+    </tr>
+</thead>
+<tbody>
+{foreach from=$tables item=table}
+    <tr id="{$table->id}" class="{if $table->user != $user->id && $permissions.update === false} noupdate{/if}{if is_object($table->game)} nodelete{/if}">
+        <td><img src="images/buttons/button_{if $table->game !== false}1{else}0{/if}.png" /></td>
+        <td>{$table->title}</td>
+        <td>{$table->seats} ({$table->free})</td>
+        <td>{$table->blinds.small}/{$table->blinds.big}</td>  
+        <td></td>
+    </tr>
+{/foreach}
+</tbody>
+</table>
+{if $permissions.update === true || $permissions.update_own === true || $permissions.delete === true}
+{literal}
+<script>
+$(document).ready(function() {
+	$('#tables').find('tr').contextMenu({
+		menu: 'tableMenu',
+        onShow: function($el) {
+            var enable = new Array(), disable = new Array(), remove = new Array();
+
+            if ($el.hasClass("noupdate")) remove.push("edit");
+            else enable.push('edit');
+            if ($el.hasClass("nodelete")) disable.push("delete");
+            else enable.push('delete');
+
+            if (disable.length > 0)
+                $('#tableMenu').disableMenuItems(disable);
+            if (remove.length > 0)
+                $('#tableMenu').removeMenuItems(remove);
+            if (enable.length > 0)
+                $('#tableMenu').enableMenuItems(enable);
+        }
+	}, function($link, $el) {
+		$link.url().attr('file', $el.attr('id'));
+		openDialog($link);
+	});
+})
+</script>
+{/literal}
+{/if}
+</div>
+{if $call != 'load'}
+	{if $permissions.update === true || $permissions.update_own === true || $permissions.delete === true}
+<ul id="tableMenu" class="contextMenu">
+    {if $permissions.update === true || $permissions.update_own === true}<li class="edit"><a href="admin/poker/poker_table-update/?width=500&height=320" class="form">Bearbeiten</a></li>{/if}
+    {if $permissions.delete === true}<li class="delete"><a href="admin/poker/poker_table-delete/?width=500&height=320" class="delete">Löschen</a></li>{/if}
+</ul>
+	{/if}
+{/if}

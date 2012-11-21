@@ -1,0 +1,13 @@
+<ul class="table-list">
+{foreach from=$tables item=table key=id}	
+	<li data-idtable="{$id}">
+		<h4>{$table->title}</h4>
+		<ul>
+			{if $active == false}<li>Laufendes Spiel: <img src="images/buttons/button_{if $table->game !== false}1{else}0{/if}.png" /></li>{/if}
+			<li>Plätze: {$table->seats} ({$table->free} frei)</li>
+			<li>Blinds: {$table->blinds.small}/{$table->blinds.big}</li>
+			<li>Spot: </li>
+		</ul>
+	</li>
+{/foreach}
+</ul>

@@ -11,8 +11,9 @@
 */
 
 require_once("classes/backend_controller.class.php");
-require_once("poker.class.php");
 require_once("classes/poker_eval.class.php");
+require_once("poker.class.php");
+require_once("poker_table/poker_table.class.php");
 
 // How often to poll, in microseconds (1,000,000 μs equals 1 s)
 define('MESSAGE_POLL_MICROSECONDS', 500000);
@@ -54,6 +55,30 @@ class Pokers extends BackendController {
 		return parent::generateTitle($title);
 	}
 
+    /**
+    * Return the buttons for the right toolbar used by this module.
+    *
+    * @return array The buttons
+    */
+    public function getToolbarButtons($section) {   
+        switch($section) {
+            case 'poker':
+            case 'overview':
+                $buttons = array(
+                    array(
+                        'title' => 'Neuer Pokertisch',
+                        'class' => 'new_booking',
+                        'action' => 'poker_table-create',
+                        'params' => '?width=480&height=370',
+                        'priority' => 1,
+                        'dialog' => 'form'
+                    ),
+                );
+                break;
+        }
+        return $buttons;
+    }
+
 	/**
     * Build site content depending on requested action.
     */  
@@ -71,14 +96,14 @@ class Pokers extends BackendController {
 
 				$tpl->assign('tables', $tables);
 				$tpl->assign('current', ''); //current($tables));
-				$content = $tpl->fetch('tables.html');
+				$content = $tpl->fetch('games.html');
 				break;
             case 'show':
                 if ($this->s->params[0] != '') {
                     $tpl = new Template('poker');
 
                     $tpl->assign('idtable', $this->s->params[0]);
-                    $content = $tpl->fetch('table.html');
+                    $content = $tpl->fetch('game.html');
                     $clean = true;
                 } else {
                     $content = 'Es wurde kein Pokertisch ausgewählt, der angezeigt werden könnte!';
@@ -202,6 +227,63 @@ class Pokers extends BackendController {
         		break;
         }
 		return false;
+    }
+
+    // hooks
+
+    /**
+     * add special tables to blackboard
+     *
+     * @return array
+     * @author Elias Müller
+     **/
+    public function hookBlackboard() {
+        $elem['priority'] = 5;
+        $elem['id'] = 'tables';
+        $elem['content'] = $this->blackboardInfo();
+        return $elem;
+    }
+
+    // module specific methods
+
+    /**
+     * add table info to blackboard
+     *
+     * @return array
+     * @author Elias Müller
+     **/
+    private function blackboardInfo() {
+        $tpl = new Template('poker');
+
+        $content = '<h2>Pokertische</h2>';
+
+        $tables = PokerTable::getAllForUser($this->s->user->id);
+        if (count($tables) > 0) {
+            $content .= '<h3>Eigene Aktivität</h3>';
+            $tpl->assign('active', false);
+            $tpl->assign('tables', $tables);
+            $content .= $tpl->fetch('table_info.html');
+        }
+
+        $tables = PokerTable::getAll(true);
+        if (count($tables) > 0) {
+            $content .= '<h3>Aktive Tische</h3>';
+            $tpl->assign('active', true);
+            $tpl->assign('tables', $tables);
+            $content .= $tpl->fetch('table_info.html');
+        }
+
+        $content .= "<script>
+$(document).ready(function() {
+    $('#bb_tables').on('click', 'ul.table-list > li', function() {
+        // open new window
+        window.open('admin/poker/show/'+ $(this).data('idtable'),'Poker_'+ $(this).data('idtable'),'width=940,height=620');
+        return false;
+    });
+})
+</script>";
+        
+        return $content;
     }
 
     /**
