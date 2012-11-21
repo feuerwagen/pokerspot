@@ -60,6 +60,7 @@
 			}
 			if(org_title != "" || opts.url){
 				if(!opts.content && !opts.url){
+					org_elem.data('title', org_elem.attr(opts.attribute));
 					org_elem.removeAttr(opts.attribute); //remove original Attribute
 				}
 				var timeout = false;

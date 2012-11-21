@@ -52,7 +52,7 @@ function processJson(data, status, xhr, $form) {
 		if (typeof data.reload == 'object') {
 			$.each(data.reload, function(module, ids){
 				$.each(ids, function(key, id){	
-					var sub = (typeof key == 'string') ? key + '_' : '';
+					var sub = (typeof key == 'string') ? key + '-' : '';
 					$('#'+id).load('form/'+module+'/'+sub+'reload/'+id, {call: 'load', path: path});
 				});
 			});
@@ -214,9 +214,10 @@ function getButtons($elem) {
 function openDialog($link) {
 	$('#messages').remove();
 	var b = getButtons($link);
+
 	$('#dialog').load($link.attr('href'), {call: 'ajax'}).dialog({
 		modal: true,
-		title: $link.attr('title'),
+		title: (typeof $link.attr('title') != 'undefined') ? $link.attr('title') : $link.data('title'),
 		show: 'fade',
 		hide: 'fade',
 		width: parseInt($link.url().param('width')),
