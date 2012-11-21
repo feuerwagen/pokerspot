@@ -187,138 +187,6 @@ div.error, div.message, div.warning {
 }
 
 /* @end */
-/* @group Kalender */
-
-#selYear { /* nav item */
-	background-color: #4c0c03;
-	-moz-border-radius: 3px; 
-	-webkit-border-radius: 3px; 
-	border-radius: 3px;
-	float: right;	
-	margin: 2px 0px;
-}
-
-#subnav #selYear a {
-	line-height: 23px;
-}
-
-#bookings th {
-	text-align: center;
-}
-
-.weekend {
-	background-color: #f0f0f0;
-}
-
-.booking {
-	background: url(../images/bg_booking.png) repeat-x 50% 50%;
-	-webkit-background-clip: padding-box;
-	border: 2px solid #fff;
-	-moz-border-radius: 7px; 
-	-webkit-border-radius: 7px; 
-	border-radius: 7px;
-	max-width: 400px;
-	padding: 5px;
-	vertical-align: top;
-}
-
-.mark {
-	background: url(../images/bg_mark.png) repeat-x 50% 50%;
-}
-
-.event {
-	background: url(../images/bg_event.png) repeat-x 50% 50%;
-}
-
-.info {
-	margin-left: 27px;
-	position: relative;
-	z-index: 1;
-}
-
-.booking_bill {
-	color: #8f9090;
-	font-size: 2em;
-	position: absolute;
-	right: 0px;
-	top: -5px;
-}
-
-.houses {
-	/*position: absolute;*/
-	float: left;
-}
-
-.houses img {
-	display: block;
-	margin-bottom: 2px;
-}
-
-p.sign {
-	clear: both;
-	color: #424242;
-	font-style: italic;
-	margin-top: 5px;
-	margin-bottom: -3px;
-}
-
-p.sign:first-child {
-	margin-top: -3px;
-	margin-bottom: 5px;
-}
-
-#content .booking ul {
-	list-style: url(../images/arrow.png) outside;
-	margin-left: 13px;
-	margin-top: 5px;
-}
-
-/* Zivi-Spalten */
-
-.zivi {
-	cursor: pointer;
-}
-
-.we, .at, .urlaub, .we_confirmed, .at_confirmed, .urlaub_confirmed {
-	background: repeat-y 50% 0;
-	width: 10px;
-}
-
-.we {
-	background-image: url(../images/bg_we.png);
-}
-
-.at {
-	background-image: url(../images/bg_at.png);
-}
-
-.urlaub {
-	background-image: url(../images/bg_vac.png);
-}
-
-.we_confirmed {
-	background-image: url(../images/bg_we_c.png);
-}
-
-.at_confirmed {
-	background-image: url(../images/bg_at_c.png);
-}
-
-.urlaub_confirmed {
-	background-image: url(../images/bg_vac_c.png);
-}
-
-/* Übersichtstabellen */
-
-.marked td {
-	color: #757676;
-}
-
-.marked a {
-	color: #ad696c;
-}
-
-/* @end */
 
 /* @group Nachrichten */
 
@@ -469,39 +337,6 @@ ul.attachments li {
 }
 
 /* @end */
-/* @group Buchungen */
-
-#accountings td, #accountings th {
-	padding-left: 10px;
-	padding-right: 10px;
-}
-
-td.number {
-	text-align: right;
-}
-
-tr.notpaid {
-	background-color: #e6b3b4;
-}
-
-/* @end */
-/* @group Statistik */
-
-table.stat em {
-	color: #959595;
-}
-
-table.stat {
-	float: left;
-	margin: 5px 15px 30px 0;
-}
-
-div.chart {
-	float: left;
-	margin-bottom: 30px;
-}
-
-/* @end */
 /* @group Rechnungen */
 
 button.i_add_delete {
@@ -524,6 +359,41 @@ button.ui-state-hover .icon-delete {
 	background-position: 0px -120px;
 }
 
+/* @end */
+/* @group Poker */
+
+#bb_tables ul.table-list, #bb_tables ul.table-list ul {
+	list-style: none;
+	margin: 0;
+}
+
+ul.table-list > li {
+	border: 1px solid #c3c3c3;
+	background-color: #f5f5f5;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#d6d6d6)); /* Safari 4+, Chrome */
+  background-image: -webkit-linear-gradient(top, #f5f5f5, #d6d6d6); /* Chrome 10+, Safari 5.1+, iOS 5+ */
+  background-image:    -moz-linear-gradient(top, #f5f5f5, #d6d6d6); /* Firefox 3.6-15 */
+  background-image:      -o-linear-gradient(top, #f5f5f5, #d6d6d6); /* Opera 11.10-12.00 */
+  background-image:         linear-gradient(to bottom, #f5f5f5, #d6d6d6); /* Firefox 16+, IE10, Opera 12.50+ */
+	display: inline-block;
+	width: 20%;
+	padding: 10px;
+	margin: 0px 10px 10px 0px;
+	cursor: pointer;
+}
+
+ul.table-list > li:hover {
+	background-color: #e0e0e0;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#e0e0e0), to(#919191)); /* Safari 4+, Chrome */
+  background-image: -webkit-linear-gradient(top, #e0e0e0, #919191); /* Chrome 10+, Safari 5.1+, iOS 5+ */
+  background-image:    -moz-linear-gradient(top, #e0e0e0, #919191); /* Firefox 3.6-15 */
+  background-image:      -o-linear-gradient(top, #e0e0e0, #919191); /* Opera 11.10-12.00 */
+  background-image:         linear-gradient(to bottom, #e0e0e0, #919191); /* Firefox 16+, IE10, Opera 12.50+ */
+}
+
+#bb_tables h3 {
+	margin-top: 1em;
+}
 
 /* @end */
 /* @group Tablesorter / TableHover */
