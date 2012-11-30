@@ -91,8 +91,8 @@ abstract class SiteController {
 	 * @author Elias Müller
 	 **/
 	final protected function right() {
-		$class = strtolower(substr(get_class($this), 0, -1));
-		$right = ($this->s->controller != $class) ? $class.'_' : '';
+		$class = from_camel_case(substr(get_class($this), 0, -1));
+		$right = ($this->s->controller != $class) ? $class.'-' : '';
 		$right .= $this->s->action;
 		return $right;
 	}
