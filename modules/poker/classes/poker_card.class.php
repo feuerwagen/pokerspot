@@ -15,6 +15,7 @@ class PokerCard {
 	public $id = -1;
 	public $name = '';
 	public $suit = '';
+	public $suit_short = '';
 	public $value = -1;
 	public $short = '';
 	public $pth = -1;
@@ -25,13 +26,15 @@ class PokerCard {
 		$iName = $iCard%13;
 
 		$arrSuits = array('clubs', 'diamonds', 'hearts', 'spades');
+		$arrSuitsShort = array('c', 'd', 'h', 's');
 		$arrNames = array('ace', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'jack', 'queen', 'king');
-		$arrShorts = array('a', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k');
+		$arrShorts = array('A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K');
 		$arrValues = array(11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10);
 		$arrPTHValues = array(14, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
 		$this->id = $iCard;
 		$this->suit = $arrSuits[$iSuit];
+		$this->suit_short = $arrSuitsShort[$iSuit];
 		$this->name = $arrNames[$iName];
 		$this->value = $arrValues[$iName];
 		$this->short = $arrShorts[$iName];
@@ -47,6 +50,10 @@ class PokerCard {
 
 	public function fullname() {
 		return $this->name.' of '.$this->suit;
+	}
+
+	public function shortname() {
+		return $this->short.$this->suit_short;
 	}
 
 	public static function random() {
