@@ -30,7 +30,7 @@ class Poker {
     
     public function __construct($table = false, $pot = 0, $actions = array()) {
         $this->info['table'] = $table;
-        $this->info['pot'] = $pot;
+        $this->info['pot'][] = $pot;
         $this->info['actions'] = $actions;
     }
 
@@ -85,9 +85,10 @@ class Poker {
                 "table" => PokerTable::getInstance($result->idtable),
                 'flop' => false,
                 'turn' => false,
-                'river' => false,
-                'pot' => array($result->pot0)
+                'river' => false
             );
+
+            $this->info['pot'][] = $result->pot0;
 
             for ($x = 1; $x <= 5; $x++) {
                 $pot = 'pot'.$x;
@@ -299,14 +300,14 @@ class PokerAction {
     /**
     * object id (from db) 
     */
-    private $id = false;
+    protected $id = false;
     
     /**
     * array of object information
     *
     * @var array
     */
-    private $info = array();
+    protected $info = array();
     
     public function __construct($game = FALSE, $action = '', $params = array(), $player = false) {
         if ($game != FALSE || $player != FALSE) {
