@@ -1,0 +1,292 @@
+<div id="messages"></div>
+<form action="form/poker/{$path}" method="post" class="cmxform" id="aform">
+	<fieldset class="p_data">
+		<legend>Daten</legend>
+		<ul>
+			<li><label for="title">Name</label> <input type="Text" name="title" value="{$spot->title}"/></li>
+			<li><label for="button">Button</label> <select name="button" class="sel_player">
+					<option value="0"{if $spot->button == 0} selected="selected"{/if}>Player 1</option>
+					<option value="1"{if $spot->button == 1} selected="selected"{/if}>Player 2</option>
+				</select></li>
+		</ul>
+	</fieldset>
+	<fieldset>
+		<legend>Player Stacks</legend>
+		<ul>
+			<li><label for="title">Player 1</label> <input type="number" name="stack_p1" min='1' value="{$spot->stacks.0}"/> &times;BB</li>
+			<li><label for="title">Player 2</label> <input type="number" name="stack_p2" min='1' value="{$spot->stacks.1}"/> &times;BB</li>
+		</ul>
+	</fieldset>
+	<fieldset>
+		<legend>Player 1 Range</legend>
+		<div class="p_range">
+		{foreach from=$hands item=row key=k1}
+			{foreach from=$row item=hand key=k2}
+			<input type="checkbox" name="range_p1[]" value="{$hand}" id="range_p1_{$k1}_{$k2}" {if is_array($spot->ranges.0) && in_array($hand, $spot->ranges.0)}checked="checked" {/if}/><label for="range_p1_{$k1}_{$k2}">{$hand}</label>
+			{/foreach}
+			{if $last !== true}<br>{/if}
+		{/foreach}
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend>Player 2 Range</legend>
+		<div class="p_range">
+		{foreach from=$hands item=row key=k1}
+			{foreach from=$row item=hand key=k2}
+			<input type="checkbox" name="range_p2[]" value="{$hand}" id="range_p2_{$k1}_{$k2}" {if is_array($spot->ranges.1) && in_array($hand, $spot->ranges.1)}checked="checked" {/if}/><label for="range_p2_{$k1}_{$k2}">{$hand}</label>
+			{/foreach}
+			{if $last !== true}<br>{/if}
+		{/foreach}
+		</div>
+	</fieldset>
+	<fieldset class="p_action">
+		<legend>Action</legend>
+		<ul>
+			<li class="step_add">
+				<button>+</button>
+			</li>
+		</ul>
+	</fieldset>
+</form>
+{literal}
+<script>
+$(document).ready(function(){
+	// buttons for houses and mark field
+	$('.p_range').find('input').button();
+	$('.step_add').find('button').button();
+	$('.step_remove').button();
+
+	// show only one fieldset at once
+	$('#aform').accordion({
+		header: 'legend',
+		autoHeight: false
+	});
+
+	// set player for first action
+	var {/literal}first_player = {if $step->button != ''}{$step->button}{else}1{/if},
+		last_action = new Array({if $step->button == 0}'raise', null{else}null, 'raise'{/if}),
+		last_bet = new Array({if $step->button == 0}0.5, 1{else}1, 0.5{/if}),
+		max_bet = 1,
+		{literal}$last = {},{/literal}
+		val = null,
+		player = null,
+		next = null,
+		actions = [{foreach from=$spot->actions item=action}{literal}{{/literal}'action': '{$action->action}', 'value': {$action->params.value}, 'player': {$action->player}{literal}}{/literal},{/foreach}];
+
+	// render existing actions
+	{literal}
+	$.each(actions, function(key, data) {
+		var options = {};
+
+		if ($.isEmptyObject($last)) {
+			var $new = $('<li><input type="hidden" name="player[]" class="step_player" value="'+(data.player)+'" /><label>Player '+(data.player + 1)+':</label></li>'),
+				$sel_action = $('<select name="action[]" class="step_action"></select>');
+
+			options = {
+				'raise': 'Raise',
+				'call': 'Call'
+			};
+			$.each(options, function(k, v) {
+				$option = $("<option>").attr('value',k).text(v);
+				if (data.action == k) $option.attr('selected', 'selected');
+				$sel_action.append($option);
+			});
+			$sel_action.appendTo($new);
+
+			$('<button class="step_remove"></button>').text('–').button().prependTo($new);
+			if (data.action == 'raise') {
+				$new.append('<span class="step_value"><input type="number" name="value[]" min="'+(max_bet+1)+'" value="'+(data.value)+'"/> &times;BB</span>');
+			} else {
+				$new.append('<span class="step_value"><input type="hidden" name="value[]" value="'+(data.value)+'"/></span>');
+			}
+			$new.prependTo('.p_action ul');
+			$last = $new;
+			player = data.player;
+			next = data.player^1;
+			val = data.action;
+		} else {
+			// save prev player action 
+			$last.data({
+				'prev-action': last_action[player],
+				'prev-bet': last_bet[player],
+				'prev-max': max_bet
+			}).find('.step_remove').button('disable');
+
+			last_action[player] = val;
+
+			if (val == 'raise') {
+				options = {
+					'raise': 'Raise',
+					'call': 'Call'
+				};
+				max_bet = last_bet[player] = parseInt($last.find('.step_value input').val());
+			} else if (val == 'call' && last_action[next] == null) {
+				options = {
+					'raise': 'Raise',
+					'check': 'Check'
+				};
+			}
+
+			if (!$.isEmptyObject(options)) {
+				var $new = $('<li><input type="hidden" name="player[]" class="step_player" value="'+next+'" /><label>Player '+(next+1)+':</label></li>'),
+					$sel_action = $('<select name="action[]" class="step_action"></select>');
+
+				$.each(options, function(k, v) {
+					$option = $("<option>").attr('value',k).text(v);
+					if (data.action == k) $option.attr('selected', 'selected');
+					$sel_action.append($option);
+				});
+				$sel_action.appendTo($new);
+				$('<button class="step_remove"></button>').text('–').button().prependTo($new);
+				if (data.action == 'raise') {
+					$new.append('<span class="step_value"><input type="number" name="value[]" min="'+(max_bet+1)+'" value="'+(data.value)+'"/> &times;BB</span>');
+				} else {
+					$new.append('<span class="step_value"><input type="hidden" name="value[]" value="'+(data.value)+'"/></span>');
+					$('.step_add button').button('disable');
+				}
+				$('.p_action li:not(.step_add)').find('button.step_remove').button('disable');
+				$last.after($new);
+				$last = $new;
+			}
+		}
+	});//*/
+
+	// TODO: change button
+	$('.sel_player').on('change', function () {
+		first_player = parseInt($(this).val())+1;
+		$('.p_action li:not(.step_add)').first()
+			.find('label').text('Player '+first_player+':').end()
+			.find('.step_player').val($(this).val());
+		last_action[$(this).val()^1] = null;
+		last_action[$(this).val()] = 'raise';
+		last_bet[$(this).val()^1] = 0.5;
+		last_bet[$(this).val()] = 1;
+	});
+
+	// add new action
+	$('.step_add button').on('click', function () {
+		var $last = $('.p_action').find('li:not(.step_add)').last(),
+			val = $last.find('.step_action').val(),
+			player = $last.find('.step_player').val(),
+			next = player^1,
+			options = {};
+
+		// no action yet
+		if ($last.length == 0) {
+			var $new = $('<li><input type="hidden" name="player[]" class="step_player" value="'+(first_player-1)+'" /><label>Player '+first_player+':</label></li>'),
+				$sel_action = $('<select name="action[]" class="step_action"></select>');
+
+			options = {
+				'raise': 'Raise',
+				'call': 'Call'
+			};
+			$.each(options, function(k, v) {
+				$sel_action.append($("<option>").attr('value',k).text(v));
+			});
+			$sel_action.appendTo($new);
+
+			$('<button class="step_remove"></button>').text('–').button().prependTo($new);
+			$new.append('<span class="step_value"><input type="number" name="value[]" min="'+(max_bet+1)+'" value="'+(max_bet+1)+'"/> &times;BB</span>').prependTo('.p_action ul');
+
+			return false;
+		}
+
+		// save prev player action 
+		$last.data({
+			'prev-action': last_action[player],
+			'prev-bet': last_bet[player],
+			'prev-max': max_bet
+		});
+
+		last_action[player] = val;
+
+		if (val == 'raise') {
+			options = {
+				'raise': 'Raise',
+				'call': 'Call'
+			};
+			max_bet = last_bet[player] = parseInt($last.find('.step_value input').val());
+		} else if (val == 'call' && last_action[next] == null) {
+			options = {
+				'raise': 'Raise',
+				'check': 'Check'
+			};
+		}
+
+		if (!$.isEmptyObject(options)) {
+			var $new = $('<li><input type="hidden" name="player[]" class="step_player" value="'+next+'" /><label>Player '+(next+1)+':</label></li>'),
+				$sel_action = $('<select name="action[]" class="step_action"></select>');
+
+			$.each(options, function(k, v) {
+				$sel_action.append($("<option>").attr('value',k).text(v));
+			});
+			$sel_action.appendTo($new);
+			$('<button class="step_remove"></button>').text('–').button().prependTo($new);
+			$new.append('<span class="step_value"><input type="number" name="value[]" min="'+(max_bet+1)+'" value="'+(max_bet+1)+'"/> &times;BB</span>');
+			$('.p_action li:not(.step_add)').find('button.step_remove').button('disable');
+			$last.after($new);
+		}
+
+		return false;
+	});
+
+	// update action value depending on type of action
+	$('.p_action').on('change', '.step_action', function() {
+		if ($(this).val() == 'raise') {
+			$(this).parents('li').find('.step_value').html('<input type="number" name="value[]" min="'+(max_bet+1)+'" value="'+(max_bet+1)+'"/> &times;BB');
+		} else if ($(this).val() == 'call') {
+			$(this).parents('li').find('.step_value').html('<input type="hidden" name="value[]" value="'+(max_bet-last_bet[$(this).parent().find('.step_player').val()])+'"/>');
+		} else {
+			$(this).parents('li').find('.step_value').html('<input type="hidden" name="value[]" value="0"/>');
+		}
+	});
+
+	// remove action
+	$('.p_action').on('click', '.step_remove', function() {
+		var $cur = $(this).parent('li'),
+			player = $cur.find('.step_player').val();
+
+		// reset saved values
+		if ($cur.data('prev-max')) {
+			console.log('sfdg');
+			last_action[player] = $cur.data('prev-action');
+			last_bet[player] = $cur.data('prev-bet');
+			max_bet = $cur.data('prev-max');
+		}
+
+		// remove element & enable buttons
+		$cur.prev().find('.step_remove').button('enable');
+		$cur.remove();
+		$('.step_add button').button('enable');
+		return false;
+	});
+
+	// disable add action button
+	$('.p_action').on('change', 'li:not(.step_add):last .step_action', function() {
+		var $last = $(this).parent('li'),
+			val = $last.find('.step_action').val(),
+			player = $last.find('.step_player').val(),
+			next = player^1,
+			options = {};
+
+		if (val == 'bet' || val == 'raise') {
+			options = {
+				'raise': 'Raise',
+				'call': 'Call'
+			};
+		} else if (val == 'call' && last_action[next] == null) {
+			options = {
+				'raise': 'Raise',
+				'check': 'Check'
+			};
+		}
+
+		if (!$.isEmptyObject(options)) {
+			$('.step_add button').button('enable');
+		} else {
+			$('.step_add button').button('disable');
+		}
+	});//*/
+});
+</script>
+{/literal}

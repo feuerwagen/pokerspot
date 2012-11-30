@@ -8,15 +8,16 @@ Feature
 # Stacks pro User
 # Export des Spiel-Logs als Textdatei (HEM-kompatibel)
 
-Version 0.3b ---- Release: ??
+Version 0.3b ---- Release: 28/11/2012
 -----------------------------
 Feature
 # Einstellung von Spots (preflop)
 
-Version 0.2a ---- Release: ??
------------------------------
+Version 0.2a ---- Release: 20/11/2012
+-------------------------------------
 Feature
 # Verwaltung der verfügbaren Tische (Plätze, Blinds, Spot)
+# Schnelleinstieg in aktive Tische von der Startseite aus
 
 Version 0.1.3a ---- Release: 19/11/2012
 ---------------------------------------

@@ -45,7 +45,7 @@ if(jQuery)( function() {
 				$table.data('timestamp', data.timestamp);
 
 				if (debug) console.log(data);
-
+				
 				// update players
 				displayPlayers(idtable, data);
 				$table.find('button').button();
@@ -335,7 +335,7 @@ if(jQuery)( function() {
 					var info = '', seat = i, folded = '';
 					// hide join-button, when player seated
 					if (data.self == false) {
-						info = '<button class="join" data-seat="'+(i+1)+'" data-blind="'+data.table.blind+'" data-idtable="'+idtable+'">Join Table</button>';
+						info = '<h5>Player '+(i+1)+'</h5><button class="join" data-seat="'+(i+1)+'" data-blind="'+data.table.blind+'" data-idtable="'+idtable+'">Join Table</button>';
 					} 
 					
 					if (typeof(data.players[i+1]) == 'object') {
@@ -471,7 +471,6 @@ if(jQuery)( function() {
 							replaceTable(idtable);
 						} else { // table not loaded
 							$.post('form/poker/load/'+idtable, {call: 'ajax'}, function(data) {
-								if (debug) console.log(data);
 								handleTableLoad(idtable, data);
 								replaceTable(idtable);		
 							}, 'json');

@@ -16,7 +16,7 @@
         <td>{$table->title}</td>
         <td>{$table->seats} ({$table->free})</td>
         <td>{$table->blinds.small}/{$table->blinds.big}</td>  
-        <td></td>
+        <td>{if is_object($table->spot)}{$table->spot->title}{else}-{/if}</td>
     </tr>
 {/foreach}
 </tbody>

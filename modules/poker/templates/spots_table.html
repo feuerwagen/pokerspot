@@ -1,0 +1,76 @@
+<div id="spots">
+<table>
+<thead>
+    <tr>
+        <th>Name</th>
+        <th>Button</th>
+        <th>Ranges</th>
+        <th>Stacks</th>
+        <th>Action</th>
+    </tr>
+</thead>
+<tbody>
+{foreach from=$spots item=spot}
+    <tr id="{$spot->id}" class="{if $spot->user != $spot->id && $permissions.update === false} noupdate{/if}{if is_object($spot->game)} nodelete{/if}">
+        <td>{$spot->title}</td>
+        <td>Player {$spot->button}</td>
+        <td><ul>
+            <li>Player 1: {$spot->ranges.0}</li>
+            <li>Player 2: {$spot->ranges.1}</li>
+        </ul></td>
+        <td><ul>
+            <li>Player 1: {$spot->stacks.0}</li>
+            <li>Player 2: {$spot->stacks.1}</li>
+        </ul></td>  
+        <td>
+            <ol>
+            {foreach from=$spot->actions item=action}
+                <li>Player {$action->player}: {$action->action}, {$action->params.value}</li>
+            {/foreach}
+            </ol>
+        </td>
+    </tr>
+{/foreach}
+</tbody>
+</table>
+{if $permissions.update === true || $permissions.update_own === true || $permissions.delete === true}
+{literal}
+<script>
+$(document).ready(function() {
+	$('#spots').find('tr').contextMenu({
+		menu: 'spotMenu',
+        onShow: function($el) {
+            var enable = new Array(), disable = new Array(), remove = new Array();
+
+            if ($el.hasClass("noupdate")) remove.push("edit");
+            else enable.push('edit');
+            if ($el.hasClass("nodelete")) disable.push("delete");
+            else enable.push('delete');
+
+            if (disable.length > 0)
+                $('#tableMenu').disableMenuItems(disable);
+            if (remove.length > 0)
+                $('#tableMenu').removeMenuItems(remove);
+            if (enable.length > 0)
+                $('#tableMenu').enableMenuItems(enable);
+        }
+	}, function($link, $el) {
+		$link.url().attr('file', $el.attr('id'));
+		openDialog($link);
+	});
+})
+</script>
+{/literal}
+{/if}
+</div>
+{if $call != 'load'}
+    {if $permissions.create === true}
+<a class="dialog button form" href="admin/poker/poker_spot-create/?width=750&height=700" title="Spot hinzufügen">Spot hinzufügen</a>
+    {/if}
+	{if $permissions.update === true || $permissions.update_own === true || $permissions.delete === true}
+<ul id="spotMenu" class="contextMenu">
+    {if $permissions.update === true || $permissions.update_own === true}<li class="edit"><a href="admin/poker/poker_spot-update/?width=750&height=700" class="form">Bearbeiten</a></li>{/if}
+    {if $permissions.delete === true}<li class="delete"><a href="admin/poker/poker_spot-delete/?width=500&height=320" class="delete">Löschen</a></li>{/if}
+</ul>
+	{/if}
+{/if}

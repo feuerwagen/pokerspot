@@ -6,7 +6,7 @@
 			{if $active == false}<li>Laufendes Spiel: <img src="images/buttons/button_{if $table->game !== false}1{else}0{/if}.png" /></li>{/if}
 			<li>Plätze: {$table->seats} ({$table->free} frei)</li>
 			<li>Blinds: {$table->blinds.small}/{$table->blinds.big}</li>
-			<li>Spot: </li>
+			<li>Spot: {if is_object($table->spot)}{$table->spot->title}{else}–{/if}</li>
 		</ul>
 	</li>
 {/foreach}

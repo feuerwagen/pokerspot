@@ -12,6 +12,7 @@
 
 require_once("classes/backend_controller.class.php");
 require_once("classes/poker_eval.class.php");
+require_once("classes/poker_range.class.php");
 require_once("poker.class.php");
 require_once("poker_table/poker_table.class.php");
 
@@ -273,15 +274,7 @@ class Pokers extends BackendController {
             $content .= $tpl->fetch('table_info.html');
         }
 
-        $content .= "<script>
-$(document).ready(function() {
-    $('#bb_tables').on('click', 'ul.table-list > li', function() {
-        // open new window
-        window.open('admin/poker/show/'+ $(this).data('idtable'),'Poker_'+ $(this).data('idtable'),'width=940,height=620');
-        return false;
-    });
-})
-</script>";
+        $content .= "<script>\$(document).ready(function(){\$('#bb_tables').on('click', 'ul.table-list > li', function() { window.open('admin/poker/show/'+ \$(this).data('idtable'),'Poker_'+ \$(this).data('idtable'),'width=940,height=620'); return false;});})</script>";
         
         return $content;
     }
@@ -810,7 +803,7 @@ $(document).ready(function() {
 
     	// check for player leaves and joins
     	foreach ($table->players AS $key => $player) {
-    		if ($player->leave == TRUE || $player->stack == 0) {
+    		if ($player->leave == TRUE || ($player->stack == 0 && !is_object($table->spot))) {
     			$table->removePlayer($key);
     			$player->delete();
     			$player_change = TRUE;
@@ -835,8 +828,22 @@ $(document).ready(function() {
 		foreach ($table->players AS $player) {
 			// erase last action
 			$player->last_action = NULL;
-			// deal cards
-			$player->cards = Array($objDeck->next(), $objDeck->next());
+
+            // spot: reset player stack
+            if (is_object($table->spot)) {
+                $player->stack = $table->spot->stacks[$player->position - 1] * $table->blinds['big'];
+            }
+
+			// deal cards: get card from range, if spot is set for this table
+            if (is_object($table->spot) && count($table->spot->ranges[$player->position-1]) > 0) {
+                $range = new PokerRange($table->spot->ranges[$player->position-1], $objDeck);
+                $player->cards = $range->getRandomPair();
+                foreach ($player->cards as $key => $value) {
+                    $objDeck->removeCard($value);
+                }
+            } else {
+                $player->cards = Array($objDeck->next(), $objDeck->next());
+            }
             $player->pot = 0;
 			$player->save();
 
@@ -861,8 +868,17 @@ $(document).ready(function() {
     	// register game in table object
     	$table->game = $game;
 
-    	// move D / SB / BB
-     	$table->movePositions($new_game);
+    	// move D / SB / BB 
+        if (!is_object($table->spot)) {
+            // normal: no spot set
+            $table->movePositions($new_game);
+        } else {
+            // spot: move positions, until button is at the right player
+            $table->movePositions($new_game);
+            while($table->positions['dealer'] != $table->spot->button + 1) {
+                $table->movePositions(false);
+            }
+        }
     	$table->save();
 
     	// create corresponding action
@@ -877,6 +893,18 @@ $(document).ready(function() {
         $this->postBlind($table->players[$table->positions['bigblind']], 'big');
 
     	$this->gameDealCards($table, 'deal');
+
+        // Transfer Spot Actions
+        if (is_object($table->spot) && count($table->spot->actions) > 0) {
+            foreach ($table->spot->actions as $saction) {
+                // transform params (BB to real value)
+                $params = array();
+                foreach ($saction->params as $key => $value) {
+                    $params[$key] = $table->blinds['big'] * $value;
+                }
+                $this->saveAction($table->players[$saction->player + 1], $saction->action, $params);
+            }
+        }
     }
 
     /**

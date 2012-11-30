@@ -8,6 +8,8 @@
 * @package: poker
 */
 
+require_once('modules/poker/poker_spot/poker_spot.class.php');
+
 class PokerTable {
     /**
     * objects of this class (only one per id!)
@@ -26,14 +28,15 @@ class PokerTable {
     */
     private $info = array();
 
-    public function __construct($title = '', $seats = 2, $sb = '') {
+    public function __construct($title = '', $seats = 2, $sb = '', $spot = FALSE) {
         $this->info = array(
             'title' => $title,
             'seats' => (is_numeric($seats)) ? $seats : 2,
             'blinds' => array(
                 'small' => $sb,
                 'big' => $sb*2
-            )
+            ),
+            'spot' => $spot
         );
     }
 
@@ -116,7 +119,7 @@ class PokerTable {
     */
     private function load($id) {
         $db = new DB();
-        $sql = "SELECT pt.idgame, pt.title, pp.idplayer, pt.d, pt.sb, pt.bb, pt.seats, pt.blind, pt.iduser
+        $sql = "SELECT pt.idgame, pt.title, pp.idplayer, pt.d, pt.sb, pt.bb, pt.seats, pt.blind, pt.iduser, pt.idspot
                   FROM poker_tables AS pt
              LEFT JOIN poker_players AS pp ON (pp.idtable = pt.idtable AND pp.pactive = 1)
                  WHERE pt.idtable = '$id'
@@ -145,6 +148,7 @@ class PokerTable {
             // general information
             $this->info = array(
                 "game" => ($result->idgame != 0 && $result->idgame != '') ? Poker::getInstance($result->idgame) : FALSE,
+                "spot" => ($result->idspot != 0 && $result->idspot != '') ? PokerSpot::getInstance($result->idspot) : FALSE,
                 'title' => $result->title,
                 'players' => $players,
                 'positions' => array(
@@ -201,10 +205,12 @@ class PokerTable {
         $db = DB::getInstance();
         $s = cBootstrap::getInstance();
         $game = ($this->info['game'] != FALSE) ? $this->info['game']->id : 0;
+        $spot = ($this->info['spot'] != FALSE) ? $this->info['spot']->id : 0;
 
         if ($this->id === false) {
             $sql = "INSERT INTO poker_tables
                             SET idgame = '".$game."',
+                                idspot = '".$spot."',
                                 title = '".$this->info['title']."',
                                 iduser = '".$s->user->id."',
                                 d = '".$this->info['positions']['dealer']."',
@@ -215,6 +221,7 @@ class PokerTable {
         } else {
             $sql = "UPDATE poker_tables
                        SET idgame = '".$game."',
+                           idspot = '".$spot."',
                            title = '".$this->info['title']."',
                            d = '".$this->info['positions']['dealer']."',
                            sb = '".$this->info['positions']['smallblind']."',
@@ -369,7 +376,7 @@ class PokerTable {
      *
      * @param bool $new_game TRUE if no game running on this table yet.
      */
-    public function movePositions($new_game) {
+    public function movePositions($new_game = false) {
         if ($new_game === FALSE) {
             foreach ($this->info['positions'] as $type => $position) {
                 if ($position != 0 && array_key_exists($position, $this->info['players'])) {

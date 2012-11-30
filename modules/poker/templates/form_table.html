@@ -4,9 +4,31 @@
 		<legend>Daten</legend>
 		<ul>
 			<li><label for="title">Name</label> <input type="Text" name="title" value="{$table->title}"/></li>
-			<li><label for="seats">Plätze</label> <input type="number" name="seats" value="{$table->seats}" min="2" max="10"/></li>
+			<li><label for="seats">Plätze</label> <input type="number" id="seats" name="seats" value="{$table->seats}" min="2" max="10"/></li>
 			<li><label for="blind">Smallblind</label> <input type="number" name="blind" value="{$table->blinds.small}" min="1"/> (BB = SB&times;2)</li>
-			<li><label for="spot">Spot</label> xx</li>
+			<li id="sel_spot"><label for="spot">Spot</label> <select name="idspot">
+				<option value="0">-- Kein --</option>
+			{foreach from=$spots item=spot}
+				<option value="{$spot->id}"{if $table->spot->id == $spot->id} selected="selected"{/if}>{$spot->title}</option>
+			{/foreach}	
+			</select></li>
 		</ul>
 	</fieldset>
 </form>
+{literal}
+<script>
+$(document).ready(function() {
+	if ($('#seats').val() != 2) {
+		$('#sel_spot').hide();
+	}
+
+	$('#seats').on('change', function() {
+		if ($(this).val() != 2) {
+			$('#sel_spot').hide();
+		} else {
+			$('#sel_spot').show();
+		}
+	});
+});
+</script>
+{/literal}

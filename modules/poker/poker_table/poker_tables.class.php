@@ -12,6 +12,7 @@
 
 require_once("classes/backend_controller.class.php");
 require_once("modules/poker/poker.class.php");
+require_once("modules/poker/poker_spot/poker_spot.class.php");
 require_once("poker_table.class.php");
 
 class PokerTables extends BackendController {
@@ -67,7 +68,9 @@ class PokerTables extends BackendController {
     protected function formAction() {
         switch ($this->s->action) {
 			case 'create':
-				$table = new PokerTable($this->vars['title'], $this->vars['seats'], $this->vars['blind']);
+				$spot = ($this->vars['idspot'] != 0) ? PokerSpot::getInstance($this->vars['idspot']) : FALSE;
+
+				$table = new PokerTable($this->vars['title'], $this->vars['seats'], $this->vars['blind'], $spot);
 				if ($table->save()) {
 					Error::addMessage('Der Pokertisch wurde erfolgreich angelegt!');
 					$this->form['reload'] = array('poker' => array('poker_table' => 'tables'));
@@ -78,6 +81,9 @@ class PokerTables extends BackendController {
 				$table = PokerTable::getInstance($this->s->element);
 				$table->title = $this->vars['title'];
 				$table->seats = $this->vars['seats'];
+				if ($this->vars['idspot'] != 0) {
+					$table->spot = PokerSpot::getInstance($this->vars['idspot']);
+				}
 				$table->blinds = array(
 					'big' => 2*$this->vars['blind'],
 					'small' => $this->vars['blind']
@@ -120,7 +126,7 @@ class PokerTables extends BackendController {
         $tpl = new Template('poker');
 
         $tables = PokerTable::getAll();
-
+        
         $tpl->assign('tables', $tables);
         $tpl->assign('user', $this->s->user);
 		$tpl->assign('call', $this->s->post['call']);
@@ -146,9 +152,12 @@ class PokerTables extends BackendController {
 		} else {
 			$table = new PokerTable();
 		}
+
+		$spots = PokerSpot::getAll();
 			
 		$tpl = new Template('poker');
 		$tpl->assign('path', $path);
+		$tpl->assign('spots', $spots);
 		$tpl->assign('table', $table);
 		return $tpl->fetch('form_table.html');
 	}
