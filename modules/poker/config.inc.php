@@ -38,11 +38,11 @@ return array(
 	),
 	// menu items for the backend
 	'menu' => array(
-        'root' => array(
+        /*'root' => array(
             'poker' => array(
                 'action' => 'play'
             )
-        ),
+        ),//*/
         'poker' => array(
             array(
                 'action' => 'play',
