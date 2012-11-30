@@ -145,4 +145,17 @@ textarea.system {
 	height: auto;
 	width: 700px;
 }
+
+.p_range label {
+	width: 40px !important;
+	margin: 2px;
+}
+
+.p_range label span {
+	padding: .2em !important;
+}
+
+.p_action select {
+	width: auto !important;
+}
 /* @end */
