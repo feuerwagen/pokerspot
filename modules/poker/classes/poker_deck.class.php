@@ -33,14 +33,34 @@ class PokerDeck {
 		return (count($this->cards)-$this->iNextCard);
 	}
 
-	public function add_deck(Deck $objDeck) {
+	public function addDeck(PokerDeck $objDeck) {
 		$this->cards = array_merge($this->cards, $objDeck->cards);
 		return $this;
 	}
 
-	public function add_card(Card $objCard) {
+	public function addCard(PokerCard $objCard) {
 		array_push($this->cards, $objCard);
 		return $this;
+	}
+
+	public function removeCard(PokerCard $objCard) {
+		foreach ($this->cards as $key => $value) {
+			if ($value->id == $objCard->id) {
+				unset ($this->cards[$key]);
+				$this->replenish();
+				break;
+			}
+		}
+		return $this;
+	}
+
+	public function cardExists($iCard) {
+		foreach ($this->cards as $key => $value) {
+			if ($value->id == $iCard) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function shuffle() {

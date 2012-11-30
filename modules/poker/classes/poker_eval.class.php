@@ -86,7 +86,7 @@ class PokerEval {
 		return array($arrFiveCards, $szSuit);
 	}
 
-	public static function readable_hand( $f_fHand ) {
+	public static function readableHand( $f_fHand ) {
 		$arrCardsText = array(2 => 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'Sevens', 'Eights', 'Nines', 'Tens', 'Jacks', 'Queens', 'Kings', 'Aces');
 		$arrCardsShort = array(2 => '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A');
 		$x = explode('.', (string)$f_fHand, 2);
