@@ -390,6 +390,7 @@ if(jQuery)( function() {
 								break;
 							// bet / raise
 							case 66: // B
+							case 82: // R
 								$('#p_bet_raise').trigger('click');
 								break;
 							// focus bet / raise input
