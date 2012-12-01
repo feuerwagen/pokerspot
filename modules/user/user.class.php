@@ -1,4 +1,4 @@
- <?php
+<?php
 /**
 * Manage user operations and permission checks.
 * 
