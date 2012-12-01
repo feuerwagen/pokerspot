@@ -9,6 +9,7 @@
 * @subpackage: backend
 */
 require_once('classes/c_bootstrap.class.php');
+require_once('modules/poker/poker_table/poker_table.class.php');
 
 class Message {
     /**
@@ -70,10 +71,9 @@ class Message {
     private function load($id) {
 		$db = new DB();
 		
-		$sql = "SELECT m.text, m.subject, m.created, m.read, u1.username AS sender, u2.username AS receiver, m.idreply, m.idmessage
+		$sql = "SELECT m.text, m.subject, m.created, m.read, u1.username AS sender, m.idreply, m.idmessage, m.idrecvr, m.recvr
 				  FROM messages AS m
-			 LEFT JOIN users AS u1 ON m.idsender = u1.iduser
-			 LEFT JOIN users AS u2 ON m.iduser = u2.iduser
+			 LEFT JOIN users AS u1 ON m.iduser = u1.iduser
 				 WHERE m.idmessage = ".$id."
 					OR m.idreply = ".$id."
 			  ORDER BY m.created ASC";
@@ -86,7 +86,15 @@ class Message {
 					$this->info["text"] = $result->text;
 					// Systeminfo
 					$this->info["sender"] = User::getInstance($result->sender);
-					$this->info["receiver"] = User::getInstance($result->receiver);
+					$this->info["type"] = $result->recvr;
+					switch($result->recvr) {
+						case 'user':
+							$this->info["receiver"] = User::getInstanceForId($result->idrecvr);
+							break;
+						case 'poker':
+							$this->info["receiver"] = PokerTable::getInstance($result->idrecvr);
+							break;
+					}
 					$this->info["replyto"] = $result->idreply;
 					if ($result->read != '0000-00-00 00:00:00') {
 						$r = explode(' ', $result->read);
@@ -133,14 +141,15 @@ class Message {
 
 		if ($this->id === false) {
 			if (is_array($this->info["receiver"])) {
-				foreach ($this->info["receiver"] AS $user) {
+				foreach ($this->info["receiver"] AS $recvr) {
 					$sql = "INSERT INTO messages
 									SET subject = '".$this->info['subject']."',
 										text = '".$this->info['text']."',
 										created = NOW(),
-										iduser = ".$user->id.",
+										idrecvr = ".$recvr->id.",
+										recvr = '".$this->info['type']."',
 										idreply = '".$this->info['replyto']."',
-										idsender = ".$this->info["sender"]->id;
+										iduser = ".$this->info["sender"]->id;
 					$id = $db->query($sql);
 					if ($id == 0)
 						return false;
@@ -150,9 +159,10 @@ class Message {
 								SET subject = '".$this->info['subject']."',
 									text = '".$this->info['text']."',
 									created = NOW(),
-									iduser = '".$this->info["receiver"]->id."',
+									idrecvr = '".$this->info["receiver"]->id."',
+									recvr = '".$this->info['type']."',
 									idreply = '".$this->info['replyto']."',
-									idsender = '".$this->info["sender"]->id."'";
+									iduser = '".$this->info["sender"]->id."'";
 				$id = $db->query($sql);
 			}	
 		} else {
@@ -189,6 +199,7 @@ class Message {
 				 WHERE (iduser = ".$user->id."
 				    OR idsender = ".$user->id.")
 				   AND idreply = 0
+				   AND m.type = 'user'
 			  ORDER BY idmessage DESC";
 		$result = $db->query($sql);
 		
@@ -216,6 +227,7 @@ class Message {
 				  FROM messages AS m
 				 WHERE m.iduser = ".$s->user->id."
 				   AND m.read = 0
+				   AND m.recvr = 'user'
 			  ORDER BY m.idmessage DESC";
 		$result = $db->query($sql);
 		

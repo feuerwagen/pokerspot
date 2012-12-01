@@ -52,6 +52,9 @@ class Pokers extends BackendController {
             case 'spots':
                 $title = 'Spots';
                 break;
+            case 'archive':
+                $title = 'Spielarchiv';
+                break;
 		}
 		return parent::generateTitle($title);
 	}
@@ -135,12 +138,13 @@ class Pokers extends BackendController {
                 break;
             case 'archive':
                 if ($this->s->params[0] == '') {
+                    $table = FALSE;
                     $content = '<h2>Spiele für '.$this->s->user->realname.'</h2><h3>Um die Liste der Spiele auf einem bestimmten Tisch anzuzeigen, wähle „Spiele anzeigen“ in der <a href="poker/poker_table-list">Liste der Tische</a> aus.</h3>';
                 } else {
                     $table = PokerTable::getInstance($this->s->params[0]);
                     $content = '<h2>Spiele am Tisch „'.$table->title.'“.</h2>';
                 }
-                $content .= $this->listGames($this->s->params[0]);
+                $content .= $this->listGames($table);
                 parent::buildSite($content);
                 break;
         }
@@ -255,6 +259,44 @@ class Pokers extends BackendController {
 				}
                 return true;
         		break;
+            case 'chat':
+                // Close the session prematurely to avoid usleep() from locking other requests
+                session_write_close();
+
+                // Automatically die after timeout (plus buffer)
+                set_time_limit(MESSAGE_TIMEOUT_SECONDS+MESSAGE_TIMEOUT_SECONDS_BUFFER);
+                 
+                // Counter to manually keep track of time elapsed (PHP's set_time_limit() is unrealiable while sleeping)
+                $counter = MESSAGE_TIMEOUT_SECONDS;
+                $new_actions = false;
+
+                // Poll for messages and hang if nothing is found, until the timeout is exhausted
+                while ($counter > 0) {
+                    // Check for new data
+                    if ($new_messages = PokerTable::getNewMessages($this->vars['timestamp'], $this->s->params[0])) {
+                        break;
+                    } else {
+                        // Otherwise, sleep for the specified time, after which the loop runs again
+                        usleep(MESSAGE_POLL_MICROSECONDS*4);
+                 
+                        // Decrement seconds from counter (the interval was set in μs, see above)
+                        $counter -= MESSAGE_POLL_MICROSECONDS*4 / 1000000;
+                    }
+                }
+                 
+                // If we've made it this far, we've either timed out or have some data to deliver to the client
+                if (is_array($new_messages)) {
+                    $messages = array();
+                    foreach ($new_messages as $key => $message) {
+                        $messages[] = '['.$message->sender->realname.', '.$message->created['time'].'] '.$message->text."\r\n";
+                    }
+                    $this->form['autocomplete'] = array(
+                        'timestamp' => time(),
+                        'messages' => $messages
+                    );
+                }
+                return true;
+                break;
         }
 		return false;
     }
@@ -311,8 +353,8 @@ class Pokers extends BackendController {
     /**
      * List all games the current user participated in
      */
-    private function listGames($idtable = FALSE) {
-        $games = ($idtable === FALSE) ? Poker::getAllForUser($this->s->user) : Poker::getAllForTable($idtable);
+    private function listGames($table = FALSE) {
+        $games = ($table === FALSE) ? Poker::getAllForUser($this->s->user) : Poker::getAllForTable($table->id);
         $tpl = new Template('poker');
 
         foreach ($games as $key => $game) {

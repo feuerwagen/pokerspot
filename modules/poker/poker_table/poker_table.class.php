@@ -9,6 +9,7 @@
 */
 
 require_once('modules/poker/poker_spot/poker_spot.class.php');
+require_once('modules/message/message.class.php');
 
 class PokerTable {
     /**
@@ -264,6 +265,31 @@ class PokerTable {
                 $actions[] = PokerAction::getInstance($result->idaction);
             } while ($result->next());
             return $actions;
+        }
+        return false;
+    }
+
+    /**
+     * Get all new chat messages for this table.
+     *
+     * @param int $timestamp The timestamp after which to look for new messages.
+     */
+    static public function getNewMessages($timestamp, $id) {
+        $db = new DB();
+        $sql = "SELECT m.idmessage
+                  FROM messages AS m
+            INNER JOIN poker_tables AS pt ON pt.idtable = m.idrecvr AND pt.idtable = '".$id."'
+                 WHERE UNIX_TIMESTAMP(m.created) > '".$timestamp."'
+                   AND m.recvr = 'poker'
+              ORDER BY m.idmessage ASC";
+        $result = $db->query($sql);
+
+        if ($result->length() > 0) {
+            $msgs = array();
+            do {
+                $msgs[] = Message::getInstance($result->idmessage);
+            } while ($result->next());
+            return $msgs;
         }
         return false;
     }

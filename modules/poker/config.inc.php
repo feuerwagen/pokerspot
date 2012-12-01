@@ -30,6 +30,7 @@ return array(
             'poll' => '', // poll for action at a poker table
             'join' => '', // join poker table
             'leave' => '', // leave poker table
+            'chat' => '', // display chat messages
 		),
 		'backend' => array(
 			'play' => '',
@@ -84,6 +85,12 @@ return array(
         'fold' => array(),
         'check' => array(),
 		'poll' => array(
+            'timestamp' => array(
+                'mandantory' => true,
+                'format' => 'int',
+            )
+        ),
+        'chat' => array(
             'timestamp' => array(
                 'mandantory' => true,
                 'format' => 'int',

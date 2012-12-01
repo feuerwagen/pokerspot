@@ -59,9 +59,9 @@ return array(
 			'text' => array(
 				'mandantory' => true
 			),
-			'user' => array(
+		/*	'user' => array(
 				'mandantory' => true
-			),
+			),//*/
 		),
 		'update' => array(
 			'subject' => array(

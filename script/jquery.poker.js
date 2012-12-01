@@ -188,6 +188,7 @@ if(jQuery)( function() {
 					$.each(data.log, function(key, value) {
 						$log.append("\n"+value);
 					});
+					$log.scrollTop($log.prop('scrollHeight') - $log.height());
 				}	
 			};
 
@@ -195,7 +196,7 @@ if(jQuery)( function() {
 			function handleTableLoad(idtable, data) {
 				$table = $tables[idtable];
 			
-				$tables[idtable].append('<div id="ptable" data-idtable="'+idtable+'" data-timestamp="'+data.timestamp+'"><div class="cards"><div></div></div></div><div id="plog"><textarea readonly data-idaction="0"></textarea><button id="p_clear_log">Löschen</button><a href="poker/save/table/'+idtable+'/" target="_blank" id="p_save_log">Speichern</a></div><div id="pcontrols"><div class="pcover"></div><button id="p_fold" class="big fold">Fold</button><button id="p_check_call" class="big">Check</button><div class="pbet"><button id="p_bet_raise" class="big">Bet</button><input type="number" id="p_bet_value" min="10" max="500" value="10" /></div><div id="radio"><button id="p_bet_min" class="small">Min</button><button id="p_bet_step1" class="small">X1</button><button id="p_bet_step2" class="small">X2</button><button id="p_bet_step3" class="small">X3</button><button id="p_bet_max" class="small">Max</button></div></div>');
+				$tables[idtable].append('<div id="ptable" data-idtable="'+idtable+'" data-timestamp="'+data.timestamp+'"><div class="cards"><div></div></div></div><div id="pchat" data-timestamp="'+data.timestamp+'"><textarea readonly></textarea><br><input type="text" id="p_message" /><button id="p_send_message">Senden</button></div><div id="plog"><textarea readonly data-idaction="0"></textarea><button id="p_clear_log">Löschen</button><a href="poker/save/table/'+idtable+'/" target="_blank" id="p_save_log">Speichern</a></div><div id="pcontrols"><div class="pcover"></div><button id="p_fold" class="big fold">Fold</button><button id="p_check_call" class="big">Check</button><div class="pbet"><button id="p_bet_raise" class="big">Bet</button><input type="number" id="p_bet_value" min="10" max="500" value="10" /></div><div id="radio"><button id="p_bet_min" class="small">Min</button><button id="p_bet_step1" class="small">X1</button><button id="p_bet_step2" class="small">X2</button><button id="p_bet_step3" class="small">X3</button><button id="p_bet_max" class="small">Max</button></div></div>');
 
 				// update table according to received data
 				handlePollData(idtable, data);		
@@ -331,6 +332,82 @@ if(jQuery)( function() {
 					//alert($(this).attr('href'));
 					//return false;
 				});
+
+				// send message
+				$table.on('click', '#p_send_message', function() {
+					$.post('form/message/send/poker/'+$('#ptable').data('idtable'), {
+						call: 'ajax',
+						text: $('#p_message').val(),
+						subject: ''
+					}, function(data) {
+						if (debug) console.log(data);
+						$('#p_message').val('');
+						//displayMessage(data.messages);
+					}, 'json');
+				});
+
+				// keyboard controls
+				// bet/raise
+				$table.on('keypress', '#p_bet_value', function(e) {
+					if(e.which == 13 && $('.pcover').is(':visible') === false) { // enter
+				        $('#p_bet_raise').trigger('click');
+				    }
+				});
+
+				// send message
+				$table.on('keypress', '#p_message', function(e) {
+					if(e.which == 13) { // enter
+				        $('#p_send_message').trigger('click');
+				    }
+				});
+
+				$(document).keydown(function(e) {
+					if ($('.pcover').is(':visible') === false) {
+						switch (e.which) {
+							// set bet/raise value
+							case 49: // 1
+								$('#p_bet_min').trigger('click');
+								break;
+							case 50: // 2
+								$('#p_bet_1').trigger('click');
+								break;
+							case 51: // 3
+								$('#p_bet_2').trigger('click');
+								break;
+							case 52: // 4
+								$('#p_bet_3').trigger('click');
+								break;
+							case 53: // 5
+								$('#p_bet_max').trigger('click');
+								break;
+							// check / call
+							case 67: // C
+								$('#p_check_call').trigger('click');
+								break;
+							// fold
+							case 70: // F
+								$('#p_fold').trigger('click');
+								break;
+							// bet / raise
+							case 66: // B
+								$('#p_bet_raise').trigger('click');
+								break;
+							// focus bet / raise input
+							case 190: // .
+								if ($('#p_bet_value').is(":focus") === false) {
+									$('#p_bet_value').focus().select();
+									e.preventDefault();
+								}
+								break;
+						}
+					}
+
+					if (e.which == 88 && $('#p_message').is(":focus") === false) { // X
+						// focus chat window
+						$('#p_message').focus();
+						e.preventDefault();
+					}
+				});
 			};
 
 			function displayPlayers(idtable, data) {
@@ -412,10 +489,15 @@ if(jQuery)( function() {
 					.append($tables[idtable]);
 				//$tables[idtable] = $('#atable'+idtable);
 				$('#atable'+idtable).data('active', 1);
+				
+				// scroll to bottom of the log
+				var $log = $('#plog textarea');
+				$log.scrollTop($log.prop('scrollHeight') - $log.height());
 
 				// start polling
 				if ($('#atable'+idtable).data('seated') != 1) {
 					poll(idtable);
+					pollChat(idtable);
 				}
 
 				$list.children('li.active').removeClass('active');
@@ -446,6 +528,31 @@ if(jQuery)( function() {
 		            // Open the Long Poll again if table is active
 		            if ($tables[idtable].data('active') == 1 || $tables[idtable].data('seated') == 1)
 		            	poll(idtable);
+		        }, 'json');
+		    };
+
+		    // Poll for chat
+    		function pollChat(idtable) {
+		        // Open an AJAX call to the server's Long Poll PHP file
+		        $.post('form/poker/chat/'+idtable, {call: 'ajax', timestamp: $tables[idtable].find('#pchat').data('timestamp')}, function(data) {
+		        	if (debug) console.log(data);
+		            // Callback to handle message sent from server
+		            if ($.isEmptyObject(data) == false) {
+		            	$tables[idtable].find('#pchat').data('timestamp', data.timestamp);
+		            	
+		            	// fill chat text box
+						if (data.messages != null) {
+							var $chat = $tables[idtable].find('#pchat textarea');
+							$.each(data.messages, function(key, value) {
+								$chat.append(value);
+							});
+							$chat.scrollTop($chat.prop('scrollHeight') - $chat.height());
+						}
+		            }
+
+		            // Open the Long Poll again if table is active
+		            if ($tables[idtable].data('active') == 1 || $tables[idtable].data('seated') == 1)
+		            	pollChat(idtable);
 		        }, 'json');
 		    };
 			
@@ -501,6 +608,7 @@ if(jQuery)( function() {
 
 					// start polling
 					poll(idtable);
+					pollChat(idtable);
 				}, 'json');
 			}
 			return $(this);

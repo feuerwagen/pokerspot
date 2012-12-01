@@ -11,6 +11,7 @@
 */
 
 require_once("classes/backend_controller.class.php");
+require_once('modules/poker/poker_table/poker_table.class.php');
 
 class Messages extends BackendController {	
 	/**
@@ -91,10 +92,24 @@ class Messages extends BackendController {
 				$message = new Message();
 				$message->text = $this->vars['text'];
 				$message->subject = $this->vars['subject'];
-				$rec = array();
-				foreach ($this->vars['user'] AS $r)
-					$rec[] = User::getInstance($r);
-				$message->receiver = $rec;
+
+				if ($this->s->params[0] != '') {
+					$message->type = $this->s->params[0];
+					switch($message->type) {
+						case 'poker':
+							$message->receiver = PokerTable::getInstance($this->s->params[1]);
+							break;
+					}
+				} else {
+					if (!is_array($this->vars['user']) || count($this->vars['user']) == 0)
+						return false;
+					$message->type = 'user';
+					$rec = array();
+					foreach ($this->vars['user'] AS $r)
+						$rec[] = User::getInstance($r);
+					$message->receiver = $rec;
+				}
+				
 				$message->sender = $this->s->user;
 				if ($message->save()) {
 					Error::addMessage('Die Nachricht wurde verschickt!');

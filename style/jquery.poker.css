@@ -52,13 +52,17 @@
 
 /* controls */
 
-#plog {
+#plog, #pchat {
 	width: 250px;
 	float: right;
 	margin: 0 10px;
 }
 
-#plog textarea {
+#pchat {
+	float: left;
+}
+
+#plog textarea, #pchat textarea {
 	margin: 0px;
 	width: 240px;
 	height: 100px;
@@ -66,7 +70,7 @@
 
 #pcontrols {
 	width: 330px;
-	margin-left: 300px;
+	margin-left: 280px;
 	position: relative;
 }
 
