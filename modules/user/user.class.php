@@ -1,4 +1,4 @@
-<?php
+ <?php
 /**
 * Manage user operations and permission checks.
 * 
@@ -49,6 +49,22 @@ class User {
             $user = self::$objects[$user];
         }
         return $user;
+    }
+
+    /**
+    * get object of this class or create new
+    * 
+    * @param string $id the object id
+    * @return object reference to the object
+    */
+    static public function getInstanceForId($id) {
+        $db = DB::getInstance();
+        $sql = "SELECT username FROM users WHERE iduser = ".$id;
+        $result = $db->query($sql);
+
+        if ($result->length() > 0) {
+            return self::getInstance($result->username);
+        }
     }
     
     /**
