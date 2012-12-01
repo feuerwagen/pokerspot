@@ -54,7 +54,8 @@ return array(
 		'poker' => array(
 			array(
 				'action' => 'list',
-				'title' => 'Tische'
+				'title' => 'Tische',
+				'priority' => 2
 			)
 		)
 	),

@@ -53,7 +53,8 @@ return array(
 		'poker' => array(
 			array(
 				'action' => 'list',
-				'title' => 'Spots'
+				'title' => 'Spots',
+				'priority' => 3
 			)
 		)
 	),

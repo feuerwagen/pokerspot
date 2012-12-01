@@ -45,7 +45,7 @@ if(jQuery)( function() {
 				$table.data('timestamp', data.timestamp);
 
 				if (debug) console.log(data);
-				
+
 				// update players
 				displayPlayers(idtable, data);
 				$table.find('button').button();
@@ -181,8 +181,12 @@ if(jQuery)( function() {
 
 				// update log
 				if (data.log != null) {
+					var $log = $table.find('#plog textarea');
+					if ($log.data('idaction') == 0 || $log.data('idaction') == '') {
+						$log.data('idaction', data.idaction);
+					}
 					$.each(data.log, function(key, value) {
-						$table.find('#plog textarea').append("\n"+value);
+						$log.append("\n"+value);
 					});
 				}	
 			};
@@ -191,10 +195,11 @@ if(jQuery)( function() {
 			function handleTableLoad(idtable, data) {
 				$table = $tables[idtable];
 			
-				$tables[idtable].append('<div id="ptable" data-idtable="'+idtable+'" data-timestamp="'+data.timestamp+'"><div class="cards"><div></div></div></div><div id="plog"><textarea readonly></textarea><button id="p_clear_log">Löschen</button><button id="p_save_log">Speichern</button></div><div id="pcontrols"><div class="pcover"></div><button id="p_fold" class="big fold">Fold</button><button id="p_check_call" class="big">Check</button><div class="pbet"><button id="p_bet_raise" class="big">Bet</button><input type="number" id="p_bet_value" min="10" max="500" value="10" /></div><div id="radio"><button id="p_bet_min" class="small">Min</button><button id="p_bet_step1" class="small">X1</button><button id="p_bet_step2" class="small">X2</button><button id="p_bet_step3" class="small">X3</button><button id="p_bet_max" class="small">Max</button></div></div>');
+				$tables[idtable].append('<div id="ptable" data-idtable="'+idtable+'" data-timestamp="'+data.timestamp+'"><div class="cards"><div></div></div></div><div id="plog"><textarea readonly data-idaction="0"></textarea><button id="p_clear_log">Löschen</button><a href="poker/save/table/'+idtable+'/" target="_blank" id="p_save_log">Speichern</a></div><div id="pcontrols"><div class="pcover"></div><button id="p_fold" class="big fold">Fold</button><button id="p_check_call" class="big">Check</button><div class="pbet"><button id="p_bet_raise" class="big">Bet</button><input type="number" id="p_bet_value" min="10" max="500" value="10" /></div><div id="radio"><button id="p_bet_min" class="small">Min</button><button id="p_bet_step1" class="small">X1</button><button id="p_bet_step2" class="small">X2</button><button id="p_bet_step3" class="small">X3</button><button id="p_bet_max" class="small">Max</button></div></div>');
 
 				// update table according to received data
 				handlePollData(idtable, data);		
+				$table.find('#p_save_log').button();
 
 				// TODO: ajax responses -> error handling
 
@@ -317,12 +322,14 @@ if(jQuery)( function() {
 
 				// clear log
 				$table.on('click', '#p_clear_log', function() {
-					$(this).parent('#plog').find('textarea').text();
+					$(this).parent('#plog').find('textarea').data('idaction', 0).text();
 				});
 
 				// save log
 				$table.on('click', '#p_save_log', function() {
-					// TODO
+					$(this).url().attr('file', $(this).parent().find('textarea').data('idaction'));
+					//alert($(this).attr('href'));
+					//return false;
 				});
 			};
 
@@ -422,7 +429,6 @@ if(jQuery)( function() {
 		        	if (debug) console.log(data);
 		            // Callback to handle message sent from server
 		            if ($.isEmptyObject(data) == false) {
-		            	if (debug) console.log(typeof data.showdown);
 		            	if (typeof data.showdown == 'object') {
 		            		// add additional handlePollData, if game showdown
 		            		data.showdown.game.winning_hand = data.showdown.winning_hand;

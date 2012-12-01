@@ -72,7 +72,7 @@ class Poker {
     */
     private function load($id) {
         $db = new DB();
-        $sql = "SELECT pg.idgame, pg.pot0, pg.pot1, pg.pot2, pg.pot3, pg.pot4, pg.pot5, pg.idtable, pg.f1, pg.f2, pg.f3, pg.t, pg.r, pa.idaction
+        $sql = "SELECT pg.idgame, pg.pot0, pg.pot1, pg.pot2, pg.pot3, pg.pot4, pg.pot5, pg.idtable, pg.f1, pg.f2, pg.f3, pg.t, pg.r, pa.idaction, pg.created
                   FROM poker_games AS pg
              LEFT JOIN poker_actions AS pa ON pa.idgame = pg.idgame
                  WHERE pg.idgame = '$id'
@@ -85,7 +85,8 @@ class Poker {
                 "table" => PokerTable::getInstance($result->idtable),
                 'flop' => false,
                 'turn' => false,
-                'river' => false
+                'river' => false,
+                'created' => $result->created
             );
 
             $this->info['pot'][] = $result->pot0;
@@ -171,7 +172,8 @@ class Poker {
                                 f2 = '".$f2."',
                                 f3 = '".$f3."',
                                 t = '".$t."',
-								r = '".$r."'";
+								r = '".$r."',
+                                created = NOW()";
 		} else {
 			$sql = "UPDATE poker_games
 					   SET pot0 = '".$this->info['pot'][0]."',
@@ -240,6 +242,52 @@ class Poker {
         );
         
         return (array_key_exists($actions['deal']->action, $map)) ? $map[$actions['deal']->action] : 0;
+    }
+
+    /**
+     * Get all games for one user.
+     *
+     * @param object $user 
+     */
+    static public function getAllForUser($user) {
+        $db = new DB();
+        $sql = "SELECT pg.idgame
+                  FROM poker_games AS pg
+            INNER JOIN poker_players AS pp ON pp.idtable = pg.idtable 
+            INNER JOIN users AS u ON u.iduser = pp.iduser
+                 WHERE u.iduser = ".$user->id."
+              ORDER BY pg.idgame DESC";
+        $result = $db->query($sql);
+
+        $games = array();
+        if ($result->length() > 0) {
+            do {
+                $games[$result->idgame] = Poker::getInstance($result->idgame);
+            } while ($result->next());
+        }
+        return $games;
+    }
+
+    /**
+     * Get all games for one table.
+     *
+     * @param int $idtable 
+     */
+    static public function getAllForTable($idtable) {
+        $db = new DB();
+        $sql = "SELECT pg.idgame
+                  FROM poker_games AS pg
+                 WHERE pg.idtable = ".$idtable."
+              ORDER BY pg.idgame DESC";
+        $result = $db->query($sql);
+
+        $games = array();
+        if ($result->length() > 0) {
+            do {
+                $games[$result->idgame] = Poker::getInstance($result->idgame);
+            } while ($result->next());
+        }
+        return $games;
     }
 
     /**

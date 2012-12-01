@@ -44,7 +44,11 @@ $(document).ready(function() {
         }
 	}, function($link, $el) {
 		$link.url().attr('file', $el.attr('id'));
-		openDialog($link);
+
+        if ($link.hasClass('page') == false)
+            openDialog($link);
+        else
+            $(document).url().attr('path', $link.url().attr('path'));
 	});
 })
 </script>
@@ -52,10 +56,9 @@ $(document).ready(function() {
 {/if}
 </div>
 {if $call != 'load'}
-	{if $permissions.update === true || $permissions.update_own === true || $permissions.delete === true}
 <ul id="tableMenu" class="contextMenu">
+    <li class="view"><a href="admin/poker/archive/" class="page">Spiele anzeigen</a></li>
     {if $permissions.update === true || $permissions.update_own === true}<li class="edit"><a href="admin/poker/poker_table-update/?width=500&height=320" class="form">Bearbeiten</a></li>{/if}
     {if $permissions.delete === true}<li class="delete"><a href="admin/poker/poker_table-delete/?width=500&height=320" class="delete">Löschen</a></li>{/if}
 </ul>
-	{/if}
 {/if}

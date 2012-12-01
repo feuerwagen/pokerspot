@@ -1,0 +1,58 @@
+<form action="poker/save" method="post">
+    <input class="button sel_all" type="checkbox" id="sel_all1"/><label for="sel_all1">Alle auswählen</label>
+    <input class="button" type="submit" name="submit" value="Speichern" />
+<table id="archive">
+<thead>
+    <tr>
+        <th></th>
+        <th>Id</th>
+        <th>Tisch</th>
+        <th>Datum</th>
+    </tr>
+</thead>
+<tbody>
+{foreach from=$games item=game}
+    <tr id="{$game->id}">
+        <td><input type="checkbox" name="games[]" value="{$game->id}" /><div class="log">{$game->log}</div></td>
+        <td>{$game->id}</td>
+        <td>{$game->table->title}</td>
+        <td>{$game->created}</td>
+    </tr>
+{/foreach}
+</tbody>
+</table>
+    <input class="button sel_all" type="checkbox" id="sel_all2"/><label for="sel_all2">Alle auswählen</label>
+    <input class="button" type="submit" name="submit" value="Speichern" />
+</form>
+{literal}
+<script>
+$(document).ready(function(){
+    $('.button').button();
+
+    $('.sel_all').change(function() {
+        if ($(this).attr('checked')) {
+            $('.sel_all').attr('checked', 'checked').button('refresh');
+            $('table input').attr('checked', 'checked');
+        } else {
+            $('.sel_all').removeAttr('checked').button('refresh');
+            $('table input').removeAttr('checked');
+        }
+    });
+
+    $('table input').change(function() {
+        if ($(this).attr('checked') == 'checked' && $('table input').not(':checked').length == 0) {
+            $('.sel_all').attr('checked', 'checked').button('refresh');
+        } else {
+            $('.sel_all').removeAttr('checked').button('refresh');
+        }
+    });
+
+    $('tr').tipTip({
+        'maxWidth': 'auto',
+        'enter': function(elem, opts, $content) {
+            $content.html($(elem).find('.log').html());
+        }
+    });
+});
+</script>
+{/literal}

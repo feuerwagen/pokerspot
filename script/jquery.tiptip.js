@@ -101,7 +101,7 @@
 				}
 			
 				function active_tiptip(){
-					opts.enter.call(this, org_elem, opts);
+					opts.enter.call(this, org_elem, opts, tiptip_content);
 					if (opts.url) {
 						tiptip_content.load(opts.url, opts.data);
 					} else {

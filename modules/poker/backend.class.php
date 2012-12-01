@@ -84,7 +84,6 @@ class Pokers extends BackendController {
     * Build site content depending on requested action.
     */  
     protected function buildSite() {
-        $clean = false;
         switch ($this->s->action) {
             case 'play':
 				$tpl = new Template('poker');
@@ -98,6 +97,7 @@ class Pokers extends BackendController {
 				$tpl->assign('tables', $tables);
 				$tpl->assign('current', ''); //current($tables));
 				$content = $tpl->fetch('games.html');
+                parent::buildSite($content);
 				break;
             case 'show':
                 if ($this->s->params[0] != '') {
@@ -105,16 +105,45 @@ class Pokers extends BackendController {
 
                     $tpl->assign('idtable', $this->s->params[0]);
                     $content = $tpl->fetch('game.html');
-                    $clean = true;
                 } else {
                     $content = 'Es wurde kein Pokertisch ausgewählt, der angezeigt werden könnte!';
                 }
+                parent::buildSite($content, true);
                 break;
-			default:
-                $content = '<h2>In Arbeit! Bitte klicke im Menü auf „Spielen“ um Poker zu spielen.</h2>';
-                break; 
+            case 'save':
+                if ($this->s->params[0] == 'table' && $this->s->params[2] != 0) {
+                    $new_actions = PokerTable::getTableActions($this->s->params[2], $this->s->params[1]);
+                    $actions = $this->getActionLog($new_actions);
+                } elseif (is_array($this->s->post['games'])) {
+                    $actions = array();
+                    foreach ($this->s->post['games'] as $key => $idgame) {
+                        $game = Poker::getInstance($idgame);
+                        $actions = array_merge($actions, $this->getActionLog($game->actions));
+                    }
+                }
+                if (is_array($actions)) {
+                    header("Expires: 0"); 
+                    header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+                    header("Content-Type: text/plain; charset=utf-8"); 
+                    header("Content-Description: File Transfer"); 
+                    header("Content-Disposition: attachment; filename=poker_log.txt"); 
+                    header("Content-Transfer-Encoding: binary"); 
+                    foreach ($actions as $key => $value) {
+                        echo $value."\r\n";
+                    }
+                }
+                break;
+            case 'archive':
+                if ($this->s->params[0] == '') {
+                    $content = '<h2>Spiele für '.$this->s->user->realname.'</h2><h3>Um die Liste der Spiele auf einem bestimmten Tisch anzuzeigen, wähle „Spiele anzeigen“ in der <a href="poker/poker_table-list">Liste der Tische</a> aus.</h3>';
+                } else {
+                    $table = PokerTable::getInstance($this->s->params[0]);
+                    $content = '<h2>Spiele am Tisch „'.$table->title.'“.</h2>';
+                }
+                $content .= $this->listGames($this->s->params[0]);
+                parent::buildSite($content);
+                break;
         }
-		parent::buildSite($content, $clean);
     }
     
     /**
@@ -280,6 +309,21 @@ class Pokers extends BackendController {
     }
 
     /**
+     * List all games the current user participated in
+     */
+    private function listGames($idtable = FALSE) {
+        $games = ($idtable === FALSE) ? Poker::getAllForUser($this->s->user) : Poker::getAllForTable($idtable);
+        $tpl = new Template('poker');
+
+        foreach ($games as $key => $game) {
+            $game->log = implode('<br>', $this->getActionLog($game->actions));
+        }
+
+        $tpl->assign('games', $games);
+        return $tpl->fetch('games_table.html');
+    }
+
+    /**
      * Compose an array with essential game data which represent the current state of a table/game.
      */
     private function getGameInfo($idtable, $player = FALSE, $actions = FALSE) {
@@ -362,14 +406,18 @@ class Pokers extends BackendController {
         }
 
         // Get action log
+        $idaction = 0;
         if ($actions !== FALSE) {
             $log = $this->getActionLog($actions);
+            $first = current($actions);
+            $idaction = $first->id;
         }
 
         // Send data to client
         // return array (for json object) with: timestamp, past actions, player info, game info, table info
         return array(
             'timestamp' => time(),
+            'idaction' => $idaction,
             'log' => $log,
             'table' => array(
                 'seats' => $table->seats,
@@ -427,7 +475,7 @@ class Pokers extends BackendController {
         	// rule 1: own bigblind -> raise/check
             if ($actions['bet']->action == 'blind' && $actions['bet']->player == $player && ($player->last_action === $actions['bet'] || $player->last_action->action == 'deal')) {
                 $valid = array(
-                    'raise' => $actions['bet']->params['value']*2, // value: absolute!
+                    'raise' => ($actions['bet']->params['value']*2 > $player->stack + $player->bet) ? $player->stack + $player->bet : $actions['bet']->params['value']*2, // value: absolute!
                     'check' => '');
             }
             // rules 2/3/4: active bet/raise (unanswered)
@@ -460,7 +508,7 @@ class Pokers extends BackendController {
                 return false;
             } else {
                 $valid = array(
-                    'bet' => $player->table->blinds['big'], 
+                    'bet' => ($player->table->blinds['big'] > $player->stack) ? $player->stack : $player->table->blinds['big'], 
                     'check' => '');
             }
     	}
@@ -496,6 +544,10 @@ class Pokers extends BackendController {
     private function saveAction($player, $action, $params = Array()) {
         $player->table->lock(TRUE); // set db lock to prevent early polling response
         $game = (is_object($player->table->game) && $action != 'leave') ? $player->table->game : FALSE;
+
+        if ((($action == 'bet' || $action == 'raise') && $params['value'] - $player->bet == $player->stack) || ($action == 'call' && $params['value'] == $player->stack)) {
+            $params['allin'] = TRUE;
+        }
         $a = new PokerAction($game, $action, $params, $player);
 
 		if ($a->save()) {
@@ -691,6 +743,7 @@ class Pokers extends BackendController {
                         $score[$pos] = PokerEval::score(array_merge($public, $private));
                     }     
                     $action_c[$player->position] = array($player->cards[0]->id, $player->cards[1]->id);
+                    $action_h[$player->position] = PokerEval::readableHand($score[$pos]);
                 }
 
                 $winner[$key] = max($score);
@@ -725,7 +778,8 @@ class Pokers extends BackendController {
         if ($action_c == FALSE) {
             $action = new PokerAction($table->game, 'showdown', array(
                 'winners' => $action_w,
-                'player_hands' => $action_c,
+                'player_cards' => FALSE,
+                'player_hands' => FALSE,
                 'winning_hand' => FALSE,
                 'cards' => FALSE,
                 'suit' => FALSE,
@@ -742,7 +796,8 @@ class Pokers extends BackendController {
             }
             $action = new PokerAction($table->game, 'showdown', array(
                 'winners' => $action_w,
-                'player_hands' => $action_c,
+                'player_cards' => $action_c,
+                'player_hands' => $action_h,
                 'winning_hand' => $hand,
                 'cards' => $cards,
                 'suit' => $suit,
@@ -938,6 +993,7 @@ class Pokers extends BackendController {
         foreach ($actions as $key => $action) {
             switch ($action->action) {
                 case 'new':
+                    $log[] = ''; // empty line before next game
                     $log[] = 'Game'.$action->game->id.' *****';
                     $log[] = "NL Texas Hold'em - ".date('l, F d, H:i:s e Y', $action->time); //Monday, March 07, 02:55:51 EST 2011
                     $log[] = 'Table '.$action->table->title.' ('.$action->table->id.')';
@@ -979,38 +1035,33 @@ class Pokers extends BackendController {
                     $log[] = $action->player->user->realname.' checks';
                     break;
                 case 'call':
-                    $log[] = $action->player->user->realname.' calls ['.$action->params['value'].']';
-                    break;
                 case 'bet':
-                    $log[] = $action->player->user->realname.' bets ['.$action->params['value'].']';
-                    break;
                 case 'raise':
-                    $log[] = $action->player->user->realname.' raises ['.$action->params['value'].']';
+                    $log[] = $action->player->user->realname.' '.(($action->params['allin'] == TRUE) ? 'is all-In' : $action->action.'s').' ['.$action->params['value'].']';
                     break;
                 case 'fold':
                     $log[] = $action->player->user->realname.' folds';
                     break;
                 case 'showdown':
-                    // TODO: HEM-Messages (also multiple pots!)
-                    if ($action->params['player_hands'] == FALSE) { // all others folded
+                    if ($action->params['player_cards'] == FALSE) { // all others folded
                         foreach ($action->params['winners'] AS $key => $value) {
                             $log[] = $action->params['game']['players'][$key]['name'].' does not show cards.';
+                            $log[] = $action->params['game']['players'][$key]['name'].' wins '.$value;
                         }
                     } else { // real showdown
-                        foreach ($action->params['player_hands'] AS $key => $value) {
+                        foreach ($action->params['player_cards'] AS $key => $value) {
                             $card1 = new PokerCard($value[0]);
                             $card2 = new PokerCard($value[1]);
-                            $log[] = $action->params['game']['players'][$key]['name'].' shows [ '.$card1->shortname().', '.$card2->shortname().' ]';
+                            $log[] = $action->params['game']['players'][$key]['name'].' shows [ '.$card1->shortname().', '.$card2->shortname().' ] a '.$action->params['player_hands'][$key];
                         }
-                        foreach ($action->params['winning_hand'] as $key => $value) {
+                        /*foreach ($action->params['winning_hand'] as $key => $value) {
                             $log[] = 'Winning hand: '.$value;
+                        }//*/
+                        foreach ($action->params['winners'] AS $key => $value) {
+                            $log[] = $action->params['game']['players'][$key]['name'].' wins '.$value.' with a '.$action->params['player_hands'][$key];
                         }
-                    }
-                    foreach ($action->params['winners'] AS $key => $value) {
-                        $log[] = $action->params['game']['players'][$key]['name'].' wins '.$value;
                     } 
 
-                    $log[] = ''; // empty line before next game
                     break;
 
             }

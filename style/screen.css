@@ -69,7 +69,7 @@ p {
 table {
 	border: 1px solid #d3d3d3;
 	border-collapse: separate;
-	margin-bottom: 1.5em;
+	margin: 1.5em 0;
 }
 
 td, th {
@@ -393,6 +393,10 @@ ul.table-list > li:hover {
 
 #bb_tables h3 {
 	margin-top: 1em;
+}
+
+#archive .log {
+	display: none;
 }
 
 /* @end */

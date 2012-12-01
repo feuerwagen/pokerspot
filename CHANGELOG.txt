@@ -1,15 +1,18 @@
 Changelog Poker
 ===============
 
-Version 0.4b ---- Release: ??
------------------------------
+Version 0.4b ---- Release: 1/12/2012
+------------------------------------
 Feature
 # Chat-Funktion pro Tisch
 # Stacks pro User
 # Export des Spiel-Logs als Textdatei (HEM-kompatibel)
 
+Imporvement
+# Korrekte Log-Nachrichten für All-in und Showdown
+
 Version 0.3b ---- Release: 28/11/2012
------------------------------
+-------------------------------------
 Feature
 # Einstellung von Spots (preflop)
 

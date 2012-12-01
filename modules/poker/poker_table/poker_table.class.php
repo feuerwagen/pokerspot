@@ -245,7 +245,7 @@ class PokerTable {
     /**
      * Get all new actions on this table.
      *
-     * @param int timestamp The timestamp after which to look for new actions.
+     * @param int $timestamp The timestamp after which to look for new actions.
      */
     static public function getNewActions($timestamp, $id) {
         $db = new DB();
@@ -253,6 +253,33 @@ class PokerTable {
                   FROM poker_actions AS pa
             INNER JOIN poker_tables AS pt ON pt.idtable = pa.idtable
                  WHERE UNIX_TIMESTAMP(pa.timestamp) > '".$timestamp."'
+                   AND pa.idtable = '".$id."'
+                   AND pt.tlock = 0
+              ORDER BY pa.idaction ASC";
+        $result = $db->query($sql);
+
+        if ($result->length() > 0) {
+            $actions = array();
+            do {
+                $actions[] = PokerAction::getInstance($result->idaction);
+            } while ($result->next());
+            return $actions;
+        }
+        return false;
+    }
+
+    /**
+     * Get all actions on this table since given $idaction.
+     *
+     * @param int $idaction The idaction from which to look for new actions.
+     * @param int $id The id of the table.
+     */
+    static public function getTableActions($idaction, $id) {
+        $db = new DB();
+        $sql = "SELECT pa.idaction
+                  FROM poker_actions AS pa
+            INNER JOIN poker_tables AS pt ON pt.idtable = pa.idtable
+                 WHERE pa.idaction >= '".$idaction."'
                    AND pa.idtable = '".$id."'
                    AND pt.tlock = 0
               ORDER BY pa.idaction ASC";

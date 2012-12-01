@@ -34,6 +34,8 @@ return array(
 		'backend' => array(
 			'play' => '',
             'show' => '',
+            'save' => '',
+            'archive' => '',
 		),
 	),
 	// menu items for the backend
@@ -48,6 +50,11 @@ return array(
                 'action' => 'play',
                 'title' => 'Spielen',
                 'priority' => 1
+            ),
+            array(
+                'action' => 'archive',
+                'title' => 'Archiv',
+                'priority' => 5
             ),
         )
 	),
