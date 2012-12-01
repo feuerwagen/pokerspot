@@ -29,8 +29,8 @@ require_once("classes/date.class.php"); // date operations / formatting
 function __autoload($class) {
     $class_orig = from_camel_case($class);
     $parts = explode('_', $class);
-    if (is_dir("modules/".$class))
-        require_once("modules/".$class."/".$class.".class.php");
+    if (is_dir("modules/".$class_orig))
+        require_once("modules/".$class_orig."/".$class_orig.".class.php");
     elseif (count($parts) > 1 && is_dir("modules/".$parts[0]."/".$class_orig))
         require_once("modules/".$parts[0]."/".$class_orig."/".$class_orig.".class.php");
     else
