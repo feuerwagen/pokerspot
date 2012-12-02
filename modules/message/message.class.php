@@ -197,9 +197,9 @@ class Message {
 		$sql = "SELECT idmessage
 				  FROM messages
 				 WHERE (iduser = ".$user->id."
-				    OR idsender = ".$user->id.")
+				    OR idrecvr = ".$user->id.")
 				   AND idreply = 0
-				   AND m.type = 'user'
+				   AND recvr = 'user'
 			  ORDER BY idmessage DESC";
 		$result = $db->query($sql);
 		
