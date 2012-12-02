@@ -132,6 +132,14 @@ class Check {
             		'vars'=> array($field, $parts[1], $parts[2])
             	);
             	break;
+            case 'poker_raise':
+            	$check = array(
+            		'type' => 'poker_raise',
+            		'message' => $message,
+            		'field'=>$field,
+            		'vars'=> array($field, $parts[1])
+            	);
+            	break;
         }
         return $check;
     }
@@ -369,9 +377,9 @@ class Check {
 	* compare dates: is $vars[1] before $vars[0]?
 	*/
 	public function compare($vars) {
-		if (!empty($vars[0])) {
-			$start = new Date($vars[1], 'd.m.Y');
-			$end = new Date($vars[0], 'd.m.Y');
+		if (!empty($this->vars[$vars[0]])) {
+			$start = new Date($this->vars[$vars[1]], 'd.m.Y');
+			$end = new Date($this->vars[$vars[0]], 'd.m.Y');
 			if ($end->compareDates($start) == 1)
 				return false;
 		}
@@ -387,4 +395,19 @@ class Check {
     	}
     	return true;
     }
+
+    /**
+     * check for correct poker raise values
+     */
+    public function poker_raise($vars) {
+    	if (is_array($this->vars[$vars[0]]) && is_array($this->vars[$vars[1]])) {
+    		$last = 1;
+    		foreach ($this->vars[$vars[0]] as $key => $value) {
+    			if ($this->vars[$vars[1]][$key] == 'raise' && $value < $last+1) {
+    				return false;
+    			}
+    		}
+    	}
+    	return true;
+    } 
 }

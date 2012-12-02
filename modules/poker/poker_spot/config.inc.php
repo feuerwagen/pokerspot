@@ -30,6 +30,10 @@ $rules = array(
 		'format' => 'int',
 		'check' => 'range:1:inf'
 	),
+	'value' => array(
+		'format' => 'int',
+		'check' => 'poker_raise:action'
+	)
 );
 
 return array(
@@ -60,7 +64,11 @@ return array(
 	),
     // messages for form error handling
     'messages' => array(
-	),
+    	'title' => array('Bitte gib einen Titel für den Spot ein!'),
+    	'stack_p1' => array('Bitte gib eine Stacksize für Player 1 ein.', 'Die Stacksize für Player 1 ist keine Zahl!', 'Die Stacksize für Player 1 ist zu klein (<= 0)!'),
+    	'stack_p1' => array('Bitte gib eine Stacksize für Player 2 ein.', 'Die Stacksize für Player 2 ist keine Zahl!', 'Die Stacksize für Player 2 ist zu klein (<= 0)!'),
+    	'value' => array('', 'Mindestens ein Raise-Value ist keine Zahl!', 'Mindestens ein Raise-Value ist zu klein (Achtung: Immer absolute Werte angeben)!'),
+    ),
 	// form rules
 	'rules' => array(
 		'update' => $rules,

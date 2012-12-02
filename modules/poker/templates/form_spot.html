@@ -63,7 +63,8 @@ $(document).ready(function(){
 	});
 
 	// set player for first action
-	var {/literal}first_player = {if $step->button != ''}{$step->button}{else}1{/if},
+	var $last = {},
+		{/literal}first_player = {if $step->button != ''}{$step->button}{else}1{/if},
 		last_action = new Array({if $step->button == 0}'raise', null{else}null, 'raise'{/if}),
 		last_bet = new Array({if $step->button == 0}0.5, 1{else}1, 0.5{/if}),
 		max_bet = 1,
@@ -83,7 +84,7 @@ $(document).ready(function(){
 				$sel_action = $('<select name="action[]" class="step_action"></select>');
 
 			options = {
-				'raise': 'Raise',
+				'raise': 'Raise to',
 				'call': 'Call'
 			};
 			$.each(options, function(k, v) {
@@ -116,13 +117,13 @@ $(document).ready(function(){
 
 			if (val == 'raise') {
 				options = {
-					'raise': 'Raise',
+					'raise': 'Raise to',
 					'call': 'Call'
 				};
 				max_bet = last_bet[player] = parseInt($last.find('.step_value input').val());
 			} else if (val == 'call' && last_action[next] == null) {
 				options = {
-					'raise': 'Raise',
+					'raise': 'Raise to',
 					'check': 'Check'
 				};
 			}
@@ -144,23 +145,26 @@ $(document).ready(function(){
 					$new.append('<span class="step_value"><input type="hidden" name="value[]" value="'+(data.value)+'"/></span>');
 					$('.step_add button').button('disable');
 				}
-				$('.p_action li:not(.step_add)').find('button.step_remove').button('disable');
+				$last.find('button.step_remove').button('disable');
 				$last.after($new);
+				$last.append('<input class="ihidden" type="hidden" name="action[]" value="'+$last.find('.step_action').val()+'"/><input type="hidden" name="value[]" class="ihidden" value="'+$last.find('.step_value input').val()+'"/>').find('input:not(input[type=hidden]), select').attr('disabled', 'disabled');
 				$last = $new;
+				player = data.player;
+				next = data.player^1;
+				val = data.action;
 			}
 		}
 	});//*/
 
-	// TODO: change button
+	// change button
 	$('.sel_player').on('change', function () {
-		first_player = parseInt($(this).val())+1;
-		$('.p_action li:not(.step_add)').first()
-			.find('label').text('Player '+first_player+':').end()
-			.find('.step_player').val($(this).val());
-		last_action[$(this).val()^1] = null;
-		last_action[$(this).val()] = 'raise';
-		last_bet[$(this).val()^1] = 0.5;
-		last_bet[$(this).val()] = 1;
+		if ($('.p_action li:not(.step_add)').first().find('.step_player').val() != $(this).val()) {
+			$('.p_action li').each(function() {
+				var player = $(this).find('.step_player').val()^1;
+				$(this).find('.step_player').val(player);
+				$(this).find('label').text('Player '+(player+1)+':');
+			});
+		}
 	});
 
 	// add new action
@@ -177,7 +181,7 @@ $(document).ready(function(){
 				$sel_action = $('<select name="action[]" class="step_action"></select>');
 
 			options = {
-				'raise': 'Raise',
+				'raise': 'Raise to',
 				'call': 'Call'
 			};
 			$.each(options, function(k, v) {
@@ -202,13 +206,13 @@ $(document).ready(function(){
 
 		if (val == 'raise') {
 			options = {
-				'raise': 'Raise',
+				'raise': 'Raise to',
 				'call': 'Call'
 			};
 			max_bet = last_bet[player] = parseInt($last.find('.step_value input').val());
 		} else if (val == 'call' && last_action[next] == null) {
 			options = {
-				'raise': 'Raise',
+				'raise': 'Raise to',
 				'check': 'Check'
 			};
 		}
@@ -223,8 +227,11 @@ $(document).ready(function(){
 			$sel_action.appendTo($new);
 			$('<button class="step_remove"></button>').text('–').button().prependTo($new);
 			$new.append('<span class="step_value"><input type="number" name="value[]" min="'+(max_bet+1)+'" value="'+(max_bet+1)+'"/> &times;BB</span>');
-			$('.p_action li:not(.step_add)').find('button.step_remove').button('disable');
 			$last.after($new);
+
+			// disable controls for previous action
+			$last.find('button.step_remove').button('disable');
+			$last.append('<input class="ihidden" type="hidden" name="action[]" value="'+$last.find('.step_action').val()+'"/><input type="hidden" name="value[]" class="ihidden" value="'+$last.find('.step_value input').val()+'"/>').find('input:not(input[type=hidden]), select').attr('disabled', 'disabled');
 		}
 
 		return false;
@@ -255,7 +262,10 @@ $(document).ready(function(){
 		}
 
 		// remove element & enable buttons
-		$cur.prev().find('.step_remove').button('enable');
+		$cur.prev()
+			.find('.ihidden').remove().end()
+			.find('input, select').removeAttr('disabled').end()
+			.find('.step_remove').button('enable');
 		$cur.remove();
 		$('.step_add button').button('enable');
 		return false;
@@ -271,12 +281,12 @@ $(document).ready(function(){
 
 		if (val == 'bet' || val == 'raise') {
 			options = {
-				'raise': 'Raise',
+				'raise': 'Raise to',
 				'call': 'Call'
 			};
 		} else if (val == 'call' && last_action[next] == null) {
 			options = {
-				'raise': 'Raise',
+				'raise': 'Raise to',
 				'check': 'Check'
 			};
 		}

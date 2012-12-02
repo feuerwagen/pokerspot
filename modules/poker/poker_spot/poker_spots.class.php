@@ -200,6 +200,7 @@ class PokerSpots extends BackendController {
 		$path = 'poker_spot-'.$this->s->action.(($this->s->element != '') ? '/'.$this->s->element : '');
 		if ($id != '') {
 			$spot = PokerSpot::getInstance($id);
+			//$spot->actions = array_reverse($spot->actions, true);
 		} else {
 			$spot = new PokerSpot();
 		}
