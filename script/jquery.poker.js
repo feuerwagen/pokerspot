@@ -435,8 +435,8 @@ if(jQuery)( function() {
 							card2 = data.cards[1];
 						} else if (data.player_hands && data.player_hands[i+1] != null) {
 							// display cards on showdown
-							card1 = data.player_hands[i+1][0];
-							card2 = data.player_hands[i+1][1];
+							card1 = data.player_cards[i+1][0];
+							card2 = data.player_cards[i+1][1];
 						}
 						info = (data.players[i+1].waiting == true || data.game == null) ? ((data.game == null) ? '<p>Waiting for other players</p>' : '<p>Waiting for next game</p>') : '<div class="card f1 card_'+card1+'"></div><div class="card f2 card_'+card2+'"></div>';
 						info += '<h5>'+data.players[i+1].name+'</h5>';
