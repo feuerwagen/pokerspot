@@ -12,17 +12,17 @@
 <tbody>
 {foreach from=$spots item=spot}
     <tr id="{$spot->id}" class="{if $spot->user != $spot->id && $permissions.update === false} noupdate{/if}{if is_object($spot->game)} nodelete{/if}">
-        <td>{$spot->title}</td>
-        <td>Player {$spot->button}</td>
+        <td style="white-space:nowrap">{$spot->title}</td>
+        <td style="white-space:nowrap">Player {$spot->button}</td>
         <td><ul>
             <li>Player 1: {$spot->ranges.0}</li>
             <li>Player 2: {$spot->ranges.1}</li>
         </ul></td>
-        <td><ul>
+        <td style="white-space:nowrap"><ul>
             <li>Player 1: {$spot->stacks.0}</li>
             <li>Player 2: {$spot->stacks.1}</li>
         </ul></td>  
-        <td>
+        <td style="white-space:nowrap">
             <ol>
             {foreach from=$spot->actions item=action}
                 <li>Player {$action->player}: {$action->action}, {$action->params.value}</li>

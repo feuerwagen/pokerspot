@@ -5,6 +5,7 @@
 	<li class="{if $t === $current}active{/if}" id="ptable{$id}" data-idtable="{$id}">
 		{if $t->active === true}<span class="unread">&bull;</span>{/if}
 		<h5><a href="#">{$t->title}</a></h5>
+		{if $t->spot !== false}Spot: {$t->spot->title}<br>{/if}
 		Plätze: {$t->seats} ({$t->free} frei) – Blinds: {$t->blinds.small}/{$t->blinds.big}
 	</li>
 {/foreach}
