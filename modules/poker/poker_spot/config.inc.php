@@ -31,7 +31,7 @@ $rules = array(
 		'check' => 'range:1:inf'
 	),
 	'value' => array(
-		'format' => 'int',
+		'format' => 'float',
 		'check' => 'poker_raise:action'
 	)
 );

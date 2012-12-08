@@ -18,22 +18,15 @@
 		</ul>
 	</fieldset>
 	<fieldset>
-		<legend>Player 1 Range</legend>
+		<legend>Ranges</legend>
+		<ul>
+			<li><label for="range_p1">Player 1</label> <input type="Text" name="range_p1" value="{$spot->ranges.0}"/></li>
+			<li><label for="range_p2">Player 2</label> <input type="Text" name="range_p2" value="{$spot->ranges.1}"/></li>
+		</ul>
 		<div class="p_range">
 		{foreach from=$hands item=row key=k1}
 			{foreach from=$row item=hand key=k2}
 			<input type="checkbox" name="range_p1[]" value="{$hand}" id="range_p1_{$k1}_{$k2}" {if is_array($spot->ranges.0) && in_array($hand, $spot->ranges.0)}checked="checked" {/if}/><label for="range_p1_{$k1}_{$k2}">{$hand}</label>
-			{/foreach}
-			{if $last !== true}<br>{/if}
-		{/foreach}
-		</div>
-	</fieldset>
-	<fieldset>
-		<legend>Player 2 Range</legend>
-		<div class="p_range">
-		{foreach from=$hands item=row key=k1}
-			{foreach from=$row item=hand key=k2}
-			<input type="checkbox" name="range_p2[]" value="{$hand}" id="range_p2_{$k1}_{$k2}" {if is_array($spot->ranges.1) && in_array($hand, $spot->ranges.1)}checked="checked" {/if}/><label for="range_p2_{$k1}_{$k2}">{$hand}</label>
 			{/foreach}
 			{if $last !== true}<br>{/if}
 		{/foreach}
@@ -52,7 +45,7 @@
 <script>
 $(document).ready(function(){
 	// buttons for houses and mark field
-	$('.p_range').find('input').button();
+	//$('.p_range').find('input').button();
 	$('.step_add').find('button').button();
 	$('.step_remove').button();
 

@@ -19,7 +19,7 @@ return array(
 	// site information
 	'site'=>array(
 		'title'=>'Poker',
-		'version'=>'0.2 alpha',
+		'version'=>'0.4 beta',
 		'has_frontend'=>false
 	),
 	// Navigation: Menu Structure for the backend

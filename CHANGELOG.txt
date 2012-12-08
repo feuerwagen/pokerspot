@@ -1,8 +1,16 @@
 Changelog Poker
 ===============
 
-Version 0.4b ---- Release: 2/12/2012
-------------------------------------
+Version 0.4.2b ---- Release: 7/12/2012
+--------------------------------------
+Improvement
+# Ranges können aus EquiLab importiert werden
+
+Bugfix
+# Korrekturen für Log-Nachrichten (HEM-Kompatibilität)
+
+Version 0.4.1b ---- Release: 2/12/2012
+--------------------------------------
 Improvement
 # Verbessertes Spot-Formular
 # Spot-Anzeige in Tischliste

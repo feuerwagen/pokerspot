@@ -76,15 +76,19 @@ class PokerSpots extends BackendController {
 					$this->vars['button'],
 					$this->vars['stack_p1'],
 					$this->vars['stack_p2'],
-					$this->vars['range_p1'],
-					$this->vars['range_p2']);
+					explode(',', preg_replace('/\s+/', '', $this->vars['range_p1'])),
+					explode(',', preg_replace('/\s+/', '', $this->vars['range_p2'])));
 				if ($spot->save()) {
 					$raise = 1;
 					if (is_array($this->vars['player']) && count($this->vars['player']) > 0) {
 						$players = array_reverse($this->vars['player'], true);
 						foreach ($players as $key => $value) {
+							if (!isset($own[$value])) {
+								$own[$value] = ($value == $this->vars['button']) ? 0.5 : 1;
+							}
 							if ($this->vars['action'][$key] == 'raise') {
-								$params = array('value' => $this->vars['value'][$key], 'rel_value' => ($this->vars['value'][$key] - $raise));
+								$params = array('value' => $this->vars['value'][$key], 'rel_value' => ($this->vars['value'][$key] - $raise), 'own_value' => ($this->vars['value'][$key] - $own[$value]));
+								$own[$value] = $this->vars['value'][$key];
 								$raise = $this->vars['value'][$key];
 							} elseif ($this->vars['action'][$key] == 'call') {
 								$params = array('value' => $this->vars['value'][$key]);
@@ -105,7 +109,7 @@ class PokerSpots extends BackendController {
 				$spot->title = $this->vars['title'];
 				$spot->button = $this->vars['button'];
 				$spot->stacks = array($this->vars['stack_p1'], $this->vars['stack_p2']);
-				$spot->ranges = array($this->vars['range_p1'], $this->vars['range_p2']);
+				$spot->ranges = array(explode(',', preg_replace('/\s+/', '', $this->vars['range_p1'])), explode(',', preg_replace('/\s+/', '', $this->vars['range_p2'])));
 
 				if ($spot->save()) {
 					if (is_array($spot->actions)) {
@@ -116,8 +120,12 @@ class PokerSpots extends BackendController {
 					$raise = 1;
 					if (is_array($this->vars['player']) && count($this->vars['player']) > 0) {
 						foreach ($this->vars['player'] as $key => $value) {
+							if (!isset($own[$value])) {
+								$own[$value] = ($value == $this->vars['button']) ? 0.5 : 1;
+							}
 							if ($this->vars['action'][$key] == 'raise') {
-								$params = array('value' => $this->vars['value'][$key], 'rel_value' => ($this->vars['value'][$key] - $raise));
+								$params = array('value' => $this->vars['value'][$key], 'rel_value' => ($this->vars['value'][$key] - $raise), 'own_value' => ($this->vars['value'][$key] - $own[$value]));
+								$own[$value] = $this->vars['value'][$key];
 								$raise = $this->vars['value'][$key];
 							} elseif ($this->vars['action'][$key] == 'call') {
 								$params = array('value' => $this->vars['value'][$key]);
@@ -200,12 +208,14 @@ class PokerSpots extends BackendController {
 		$path = 'poker_spot-'.$this->s->action.(($this->s->element != '') ? '/'.$this->s->element : '');
 		if ($id != '') {
 			$spot = PokerSpot::getInstance($id);
+			$spot->ranges[0] = (is_array($spot->ranges[0])) ? implode(',', $spot->ranges[0]) : '';
+			$spot->ranges[1] = (is_array($spot->ranges[1])) ? implode(',', $spot->ranges[1]) : '';
 			//$spot->actions = array_reverse($spot->actions, true);
 		} else {
 			$spot = new PokerSpot();
 		}
 
-		$cards = array('A','K','Q','J','T','9','8','7','6','5','4','3','2');
+		/*$cards = array('A','K','Q','J','T','9','8','7','6','5','4','3','2');
 		$hands = array();
 		foreach ($cards as $key => $value) {
 			foreach ($cards as $k => $v) {
@@ -217,12 +227,12 @@ class PokerSpots extends BackendController {
 					$hands[$key][$k] = $value.$v.'s';
 				}
 			}
-		}
+		}//*/
 			
 		$tpl = new Template('poker');
 		$tpl->assign('path', $path);
 		$tpl->assign('spot', $spot);
-		$tpl->assign('hands', $hands);
+		//$tpl->assign('hands', $hands);
 		return $tpl->fetch('form_spot.html');
 	}
 }
