@@ -42,7 +42,6 @@ if(jQuery)( function() {
 			// Handle poll data: update table according to poll response
 			function handlePollData(idtable, data) {
 				$table = $tables[idtable];
-				$table.data('timestamp', data.timestamp);
 
 				if (debug) console.log(data);
 
@@ -67,7 +66,6 @@ if(jQuery)( function() {
 					}
 
 					// display pot (or name of winning hand on showdown) 
-					if (debug) console.log(typeof(data.winning_hand));
 					if (typeof(data.winning_hand) == 'object') {
 						$.each(data.winning_hand, function(key, hand) {
 							$table.find('.cards > div').append('<div class="pot">'+hand+'</div>');
@@ -86,7 +84,7 @@ if(jQuery)( function() {
 				}
 				
 				// update buttons
-				if (data.actions == false) {
+				if (data.actions == false || data.actions == '') {
 					$table.find('#pcontrols').find('.pcover').removeClass('spin').show();
 				} else {
 					var player = data.players[data.self],
@@ -122,12 +120,14 @@ if(jQuery)( function() {
 								bet_val = bfunc;
 								break;
 							case 'raise':
-								if (param > player_stack) {
+								if (param >= player_stack) {
 									btext = 'All-in';
 									bfunc = player_stack;
+									$('#p_bet_value').attr('disabled', 'disabled');
 								} else {
 									btext = 'Raise to';
 									bfunc = param;
+									$('#p_bet_value').removeAttr('disabled');
 								}	
 
 								$table.find('#p_bet_raise span').text(btext);
@@ -135,7 +135,8 @@ if(jQuery)( function() {
 									'min': bfunc,
 									'max': player_stack,
 									'step': bfunc,
-								}).removeAttr('disabled');
+								});
+
 								$table.find('#p_bet_raise').button('enable').addClass('raise').removeClass('bet');
 								bet_val = bfunc;
 								break;
@@ -197,6 +198,7 @@ if(jQuery)( function() {
 				$table = $tables[idtable];
 			
 				$tables[idtable].append('<div id="ptable" data-idtable="'+idtable+'" data-timestamp="'+data.timestamp+'"><div class="cards"><div></div></div></div><div id="pchat" data-timestamp="'+data.timestamp+'"><textarea readonly></textarea><br><input type="text" id="p_message" /><button id="p_send_message">Senden</button></div><div id="plog"><textarea readonly data-idaction="0"></textarea><button id="p_clear_log">Löschen</button><a href="poker/save/table/'+idtable+'/" target="_blank" id="p_save_log">Speichern</a></div><div id="pcontrols"><div class="pcover"></div><button id="p_fold" class="big fold">Fold</button><button id="p_check_call" class="big">Check</button><div class="pbet"><button id="p_bet_raise" class="big">Bet</button><input type="number" id="p_bet_value" min="10" max="500" value="10" /></div><div id="radio"><button id="p_bet_min" class="small">Min</button><button id="p_bet_step1" class="small">X1</button><button id="p_bet_step2" class="small">X2</button><button id="p_bet_step3" class="small">X3</button><button id="p_bet_max" class="small">Max</button></div></div>');
+				$tables[idtable].data('timestamp', data.timestamp);
 
 				// update table according to received data
 				handlePollData(idtable, data);		
@@ -268,6 +270,7 @@ if(jQuery)( function() {
 						value: $(this).parents('#pcontrols').find('#p_bet_value').val(),
 						call: 'ajax'
 					}, function(data) {
+						if (debug) console.log(data);
 						//handlePollData($('#ptable').data('idtable'), data);
 					}, 'text');
 				});
@@ -362,7 +365,7 @@ if(jQuery)( function() {
 				});
 
 				$(document).keydown(function(e) {
-					if ($('.pcover').is(':visible') === false) {
+					if ($('.pcover').is(':visible') === false && $('#p_message').is(":focus") === false) {
 						switch (e.which) {
 							// set bet/raise value
 							case 49: // 1
@@ -509,13 +512,16 @@ if(jQuery)( function() {
     		function poll(idtable) {
 		        // Open an AJAX call to the server's Long Poll PHP file
 		        $.post('form/poker/poll/'+idtable, {call: 'ajax', timestamp: $tables[idtable].data('timestamp')}, function(data) {
+		        	if (debug) console.log($tables[idtable].data('timestamp'));
 		        	if (debug) console.log(data);
 		            // Callback to handle message sent from server
 		            if ($.isEmptyObject(data) == false) {
+		 				$tables[idtable].data('timestamp', data.timestamp);
 		            	if (typeof data.showdown == 'object') {
 		            		// add additional handlePollData, if game showdown
 		            		data.showdown.game.winning_hand = data.showdown.winning_hand;
 		            		data.showdown.game.player_hands = data.showdown.player_hands;
+		            		data.showdown.game.player_cards = data.showdown.player_cards;
 		            		data.showdown.game.winner_pots = data.showdown.winner_pots;
 		            		data.showdown.game.self = data.self;
 		            		handlePollData(idtable, data.showdown.game);
