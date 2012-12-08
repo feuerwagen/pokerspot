@@ -170,8 +170,8 @@ class Pokers extends BackendController {
         			// save new action
         			$actions = $player->table->game->getTurnActions();
         			$rel_value = ($this->s->action == 'bet') ? $this->vars['value'] : $this->vars['value'] - $actions['bet']->params['value'];
-
-        			if ($this->saveAction($player, $this->s->action, array('value' => $this->vars['value'], 'rel_value' => $rel_value))) {
+                    $log_value = ($this->s->action == 'bet') ? $rel_value : $this->vars['value'] - $player->bet;
+        			if ($this->saveAction($player, $this->s->action, array('value' => $this->vars['value'], 'rel_value' => $rel_value, 'log_value' => $log_value))) {
         				return true;
         			}
         		} 		
@@ -351,14 +351,18 @@ class Pokers extends BackendController {
     }
 
     /**
-     * List all games the current user participated in
+     * List all games the current user participated in / which took playe at a certain table.
      */
     private function listGames($table = FALSE) {
         $games = ($table === FALSE) ? Poker::getAllForUser($this->s->user) : Poker::getAllForTable($table->id);
         $tpl = new Template('poker');
 
         foreach ($games as $key => $game) {
-            $game->log = implode('<br>', $this->getActionLog($game->actions));
+            if ($game->table->game !== $game) {
+                $game->log = implode('<br>', $this->getActionLog($game->actions));
+            } else {
+                unset($games[$key]);
+            }
         }
 
         $tpl->assign('games', $games);
@@ -412,7 +416,8 @@ class Pokers extends BackendController {
                     // player cards, winning hand, winning players
                     $showdown = array(
                         'winning_hand' => $action->params['winning_hand'], // name of the winning hand
-                        'player_hands' => $action->params['player_hands'], // hands of all players in showdown 
+                        'player_hands' => $action->params['player_hands'], // hands of all players in showdown
+                        'player_cards' => $action->params['player_cards'], // cards of all players in showdown 
                         'winner_pots' => $action->params['winners'], // winning player pots
                         //'cards' => $action->params['cards'], // TODO: map raw cards to corresponding numbers
                         //'suit' => $action->params['suit'],
@@ -532,7 +537,7 @@ class Pokers extends BackendController {
                 else {
                     $valid = array(
                         'call' => $actions['bet']->params['value'] - $player->bet, // value: relative!
-                        'raise' => $actions['bet']->params['value'] + $actions['bet']->params['rel_value'], // value: absolute!
+                        'raise' => ($actions['bet']->params['value'] + $actions['bet']->params['rel_value'] > $player->stack + $player->bet) ? $player->stack + $player->bet : $actions['bet']->params['value'] + $actions['bet']->params['rel_value'], // value: absolute!
                         'fold' => '');
                 }
 
@@ -1035,10 +1040,12 @@ class Pokers extends BackendController {
         foreach ($actions as $key => $action) {
             switch ($action->action) {
                 case 'new':
-                    $log[] = ''; // empty line before next game
-                    $log[] = 'Game'.$action->game->id.' *****';
+                    //$log[] = 'Game #'.$action->game->id.' starts.';
+                    $log[] = '';
+                    //$log[] = '#Game No : '.$action->game->id;
+                    $log[] = '***** Hand History for Game '.$action->game->id.' *****';
                     $log[] = "NL Texas Hold'em - ".date('l, F d, H:i:s e Y', $action->time); //Monday, March 07, 02:55:51 EST 2011
-                    $log[] = 'Table '.$action->table->title.' ('.$action->table->id.')';
+                    $log[] = 'Table '.$action->table->title.' (Real Money)';
                     $log[] = 'Seat '.$action->params['button'].' is the button';
                     $log[] = 'Total number of players: '.count($action->params['players']).'/'.$action->table->seats;
                     foreach ($action->params['players'] as $key => $player) {
@@ -1078,8 +1085,10 @@ class Pokers extends BackendController {
                     break;
                 case 'call':
                 case 'bet':
-                case 'raise':
                     $log[] = $action->player->user->realname.' '.(($action->params['allin'] == TRUE) ? 'is all-In' : $action->action.'s').' ['.$action->params['value'].']';
+                    break;
+                case 'raise':
+                    $log[] = $action->player->user->realname.' '.(($action->params['allin'] == TRUE) ? 'is all-In' : $action->action.'s').' ['.$action->params['own_value'].']';
                     break;
                 case 'fold':
                     $log[] = $action->player->user->realname.' folds';
