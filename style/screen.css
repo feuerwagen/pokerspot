@@ -23,11 +23,12 @@ h1 {
 /*	background: url(../images/logo.png) no-repeat;*/
 	font-size: 1.5em;
 	color: #fff;
-	height: 59px;
-	left: 29px;
+	height: 73px;
+	left: 15px;
 /*	text-indent: -1000em;*/
-	top: 5px;
+	top: 0px;
 	position: absolute;
+	line-height: 73px;
 	width: 259px;
 }
 
@@ -517,7 +518,7 @@ td.click {
 	background: url(../images/bg_subnav.png) repeat-x;
 	height: 27px;
 	margin-bottom: -6px;
-	padding: 0px 8px;
+	padding: 0px 3px;
 }
 
 #subnav a {

@@ -325,21 +325,4 @@ $(document).ready(function() {
 		}, 'json');
 		return false;
 	});
-	
-	// init options for tablesorter
-	$.tablesorter.defaults.dateFormat = 'de'; 
-	//$.tablesorter.defaults.debug = true;
-	$.tablesorter.defaults.textExtraction = function(el) {
-		return $(el).text();
-	};
-	$.tablesorter.addParser({ 
-        id: 'rate', 
-        is: function(s) { 
-            return false; // no auto-detection
-        }, 
-        format: function(s) { 
-            return s.toLowerCase().replace(/[ €]/g,'').replace(/pauschal/,1000).replace(/\((\d*)\)/,"$1"); // data normalization 
-        }, 
-        type: 'numeric' // numeric or text 
-    });
 });
