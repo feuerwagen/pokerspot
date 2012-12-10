@@ -411,7 +411,7 @@ class Pokers extends BackendController {
             foreach ($a as $action) {
                 if ($g == FALSE && $action->action != 'showdown') {
                     $g = $action->game->id;
-                } elseif ($g != $action->game->id && $action->action == 'showdown') {
+                } elseif (($g != $action->game->id || $g == FALSE) && $action->action == 'showdown') {
                     // get showdown data
                     // player cards, winning hand, winning players
                     $showdown = array(

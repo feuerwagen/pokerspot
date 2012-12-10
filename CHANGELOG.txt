@@ -1,6 +1,11 @@
 Changelog Poker
 ===============
 
+Version 0.4.3b ---- Release: 10/12/2012
+--------------------------------------
+Bugfix
+# Anzeige des Showdowns auch dann, wenn kein neues Spiel gestartet wird
+
 Version 0.4.2b ---- Release: 7/12/2012
 --------------------------------------
 Improvement
