@@ -81,8 +81,8 @@ class PokerSpots extends BackendController {
 				if ($spot->save()) {
 					$raise = 1;
 					if (is_array($this->vars['player']) && count($this->vars['player']) > 0) {
-						$players = array_reverse($this->vars['player'], true);
-						foreach ($players as $key => $value) {
+						//$players = array_reverse($this->vars['player'], true);
+						foreach ($this->vars['player'] as $key => $value) {
 							if (!isset($own[$value])) {
 								$own[$value] = ($value == $this->vars['button']) ? 0.5 : 1;
 							}
