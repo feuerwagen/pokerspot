@@ -416,11 +416,14 @@ class PokerTable {
      */
     public function getActivePlayers($fold = TRUE, $seated = TRUE) {
         $active = array();
-        foreach ($this->info['players'] as $player) {
-            if (($seated == FALSE || $player->join != TRUE) && ($fold == FALSE || $player->last_action == NULL || $player->last_action->action != 'fold')) {
-                $active[] = $player;
+        if (is_array($this->info['players'])) {
+            foreach ($this->info['players'] as $player) {
+                if (($seated == FALSE || $player->join != TRUE) && ($fold == FALSE || $player->last_action == NULL || $player->last_action->action != 'fold')) {
+                    $active[] = $player;
+                }
             }
         }
+        
         return $active;
     }
 

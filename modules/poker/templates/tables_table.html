@@ -25,7 +25,7 @@
 {literal}
 <script>
 $(document).ready(function() {
-	$('#tables').find('tr').contextMenu({
+	$('#tables').find('tbody tr').contextMenu({
 		menu: 'tableMenu',
         onShow: function($el) {
             var enable = new Array(), disable = new Array(), remove = new Array();
@@ -58,6 +58,9 @@ $(document).ready(function() {
 {/if}
 </div>
 {if $call != 'load'}
+{if $permissions.create === true}
+<a class="dialog button form" href="admin/poker/poker_table-create/?width=480&height=370" title="Tisch hinzufügen">Tisch hinzufügen</a>
+    {/if}
 <ul id="tableMenu" class="contextMenu">
     <li class="view"><a href="admin/poker/archive/" class="page">Spiele anzeigen</a></li>
     {if $permissions.update === true || $permissions.update_own === true}<li class="edit"><a href="admin/poker/poker_table-update/?width=500&height=320" class="form">Bearbeiten</a></li>{/if}
