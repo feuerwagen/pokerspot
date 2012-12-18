@@ -215,7 +215,7 @@ function openDialog($link) {
 	$('#messages').remove();
 	var b = getButtons($link);
 
-	$('#dialog').load($link.attr('href'), {call: 'ajax'}).dialog({
+	$('#dialog').load($link.attr('href'), {'call': 'ajax'}).dialog({
 		modal: true,
 		title: (typeof $link.attr('title') != 'undefined') ? $link.attr('title') : $link.data('title'),
 		show: 'fade',
@@ -225,12 +225,12 @@ function openDialog($link) {
 		maxWidth: $(window).width(),
 		maxHeight: $(window).height(),
 		buttons: b
-	});
+	});//*/
 }
 
 $(document).ready(function() {	
 	// error messages for ajax calls	
-	$.ajaxSetup({
+/*	$.ajaxSetup({
         error: function(jqXHR, exception) {
             if (jqXHR.status === 0) {
                 all = 'Not connect.\n Verify Network.';
@@ -252,16 +252,16 @@ $(document).ready(function() {
 
             displayMessage({'error': [all]});
         }
-    });
+    });//*/
 
 	$(document).ajaxError(function(e,xhr,settings,exception) {
 		var all;
 		if(xhr.status==0) {
-			all = 'Keine Verbindung zum Server möglich!\n Prüfe bitte Deine Netzwerkverbindung.';
+			all = 'Keine Verbindung zum Server möglich! Prüfe bitte Deine Netzwerkverbindung.';
 		} else if(xhr.status==404) {
-			all = 'Bitte den Administrator benachrichtigen: Die aufgerufene URL wurde nicht gefunden.';
+			all = 'Bitte den Administrator benachrichtigen: Die aufgerufene URL wurde nicht gefunden (404).';
 		} else if(xhr.status==500) {
-			all = 'Bitte den Administrator benachrichtigen: Interner Server-Fehler.';
+			all = 'Bitte den Administrator benachrichtigen: Interner Server-Fehler (500).';
 		} else if(e=='parsererror') {
 			all = 'Bitte den Administrator benachrichtigen: Einlesen der empfangenen Daten fehlgeschlagen.';
 			console.log(xhr.responseText);
@@ -276,7 +276,7 @@ $(document).ready(function() {
 
 		displayMessage({'error': [all]});
 	
-	});
+	});//*/
 	
 	// JqueryUI dialog for forms and confirmations
 	$('a.dialog').live('click', function(){
