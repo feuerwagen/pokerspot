@@ -1,6 +1,12 @@
 Changelog Poker
 ===============
 
+Version 0.4.4b ---- Release: 17/12/2012
+---------------------------------------
+Bugfix
+# Range-Import versteht auch fertige Hände (wie As8h).
+# Log (Raise-Value)
+
 Version 0.4.3b ---- Release: 10/12/2012
 ---------------------------------------
 Improvement

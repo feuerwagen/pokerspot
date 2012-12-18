@@ -37,6 +37,7 @@ return array(
             'show' => '',
             'save' => '',
             'archive' => '',
+            'debug' => ''
 		),
 	),
 	// menu items for the backend

@@ -12,13 +12,18 @@ require_once("poker_card.class.php");
 
 class PokerRange {
 	private $cards = array();
-	
+	public $range = array();
+	public $pairs = array();
+
 	public function __construct($range, $deck) {
 		$range = $this->expandRange($range);
-
+		$this->range= $range;
 		if (is_array($range)) {
 			foreach ($range as $hand) {
             	$this->cards = array_merge($this->cards, $this->expandPair($deck, $hand));
+	        }
+	        foreach ($this->cards as $key => $value) {
+	        	$this->pairs[] = $value[0]->shortname().' / '.$value[1]->shortname();
 	        }
 		}
 	}
@@ -31,7 +36,7 @@ class PokerRange {
 	 */
 	private function expandRange($range) {
 		if (is_array($range) && current($range) == "100%" || $range == '100%') {
-			return convert_range(array("A2+", "22+", "K2+", "Q2+", "J2+", "T2+", "92+", "82+", "72+", "62+", "52+", "42+", "32+"));
+			return $this->expandRange(array("A2+", "22+", "K2+", "Q2+", "J2+", "T2+", "92+", "82+", "72+", "62+", "52+", "42+", "32+"));
  		}
 
  		$list = array();
@@ -39,6 +44,7 @@ class PokerRange {
 
  		if (is_array($range)) {
  			foreach ($range as $element) {
+ 				$element = trim($element);
  				switch (strlen($element)) {
  					case 2:
  						if (substr($element, 0, 1) == substr($element, 1, 1)) {
@@ -71,11 +77,15 @@ class PokerRange {
 	 					}
  						break;
  					case 4:
- 						$list[] = substr($element, 0, 3);
- 						$index_end = array_search(substr($element, 1, 1), $cards);
-						$index_start = array_search(substr($element, 0, 1), $cards) + 1;
- 						for ($i = $index_start; $i < $index_end; $i++) {
- 							$list[] = substr($element, 0, 1).$cards[$i].substr($element, 1, 1);
+ 						if (substr($element, 3, 1) == '+') {
+ 							$list[] = substr($element, 0, 3);
+	 						$index_end = array_search(substr($element, 1, 1), $cards);
+							$index_start = array_search(substr($element, 0, 1), $cards) + 1;
+	 						for ($i = $index_start; $i < $index_end; $i++) {
+	 							$list[] = substr($element, 0, 1).$cards[$i].substr($element, 2, 1);
+	 						}
+ 						} else {
+ 							$list[] = $element;
  						}
  						break;
  					case 5:
@@ -86,9 +96,9 @@ class PokerRange {
  							$list[] = substr($element, 0, 2).'o';
  						}
 
- 						$index_end = array_search(substr($element, 1, 1), $cards);
-						$index_start = array_search(substr($element, 4, 1), $cards) + 1;
- 						for ($i = $index_start; $i < $index_end; $i++) {
+ 						$index_end = array_search(substr($element, 4, 1), $cards);
+						$index_start = array_search(substr($element, 1, 1), $cards) + 1;
+ 						for ($i = $index_start; $i <= $index_end; $i++) {
  							if (substr($element, 0, 1) == substr($element, 1, 1)) {
  								$list[] = $cards[$i].$cards[$i];
  							} else {
@@ -99,9 +109,10 @@ class PokerRange {
  						break;
  					case 7:
  						$list[] = substr($element, 0, 3);
- 						$index_end = array_search(substr($element, 1, 1), $cards);
-						$index_start = array_search(substr($element, 5, 1), $cards) + 1;
- 						for ($i = $index_start; $i < $index_end; $i++) {
+ 						$index_end = array_search(substr($element, 5, 1), $cards);
+						$index_start = array_search(substr($element, 1, 1), $cards) + 1;
+
+ 						for ($i = $index_start; $i <= $index_end; $i++) {
  							$list[] = substr($element, 0, 1).$cards[$i].substr($element, 2, 1);
  						}
  						break;
@@ -110,7 +121,7 @@ class PokerRange {
 
  			$final = array();
  			foreach ($list AS $hand) {
- 				if (strcmp(substr($hand, 0, 1), substr($hand, 1, 1)) > 0) {
+ 				if (strlen($hand) < 4 && array_search(substr($hand, 0, 1), $cards) > array_search(substr($hand, 0, 1), $cards)) {
  					$final[] = substr($hand, 1, 1).substr($hand, 0, 1).substr($hand, 2);
  				} else {
  					$final[] = $hand;
@@ -129,34 +140,46 @@ class PokerRange {
 		$val1 = array_search(substr($hand, 0, 1), $arrShorts);
 		$val2 = array_search(substr($hand, 1, 1), $arrShorts);
 
-		foreach ($arrSuits as $key => $value) {
-			if (strlen($hand) == 2 || substr($hand, 2, 1) == 'o') {
-				if ($deck->cardExists($key + $val1) == false) {
-					continue;
-				}
-				foreach ($arrSuits as $k => $v) {
-					if (($val1 != $val2 && $k == $key && substr($hand, 2, 1) == 'o') || $deck->cardExists($k + $val2) == false) {
-						// only offsuit & card exists
-						continue;
-					} elseif ($key + $val1 != $k + $val2) {
-						// pairs / offsuit
-						$cards[] = array(
-							new PokerCard($key + $val1),
-							new PokerCard($k + $val2)
-						);
-					}	
-				}
-			} else {
-				if ($deck->cardExists($key + $val1) == false || $deck->cardExists($key + $val2) == false) {
-					continue;
-				}
-				// suited
+		if (strlen($hand) == 4) {
+			$card1 = array_search(substr($hand, 0, 1), $arrShorts) + array_search(substr($hand, 1, 1), $arrSuits);
+			$card2 = array_search(substr($hand, 2, 1), $arrShorts) + array_search(substr($hand, 3, 1), $arrSuits);
+			if ($deck->cardExists($card1) == true || $deck->cardExists($card2) == true) {
 				$cards[] = array(
-					new PokerCard($key + $val1),
-					new PokerCard($key + $val2)
+					new PokerCard($card1),
+					new PokerCard($card2)
 				);
 			}
+		} else {
+			foreach ($arrSuits as $key => $value) {
+				if (strlen($hand) == 2 || substr($hand, 2, 1) == 'o') {
+					if ($deck->cardExists($key + $val1) == false) {
+						continue;
+					}
+					foreach ($arrSuits as $k => $v) {
+						if (($val1 != $val2 && $k == $key && substr($hand, 2, 1) == 'o') || $deck->cardExists($k + $val2) == false) {
+							// only offsuit & card exists
+							continue;
+						} elseif ($key + $val1 != $k + $val2) {
+							// pairs / offsuit
+							$cards[] = array(
+								new PokerCard($key + $val1),
+								new PokerCard($k + $val2)
+							);
+						}	
+					}
+				} else {
+					if ($deck->cardExists($key + $val1) == false || $deck->cardExists($key + $val2) == false) {
+						continue;
+					}
+					// suited
+					$cards[] = array(
+						new PokerCard($key + $val1),
+						new PokerCard($key + $val2)
+					);
+				}
+			}
 		}
+		
 		return $cards;
 	}
 

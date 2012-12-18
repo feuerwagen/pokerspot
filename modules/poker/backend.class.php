@@ -88,6 +88,22 @@ class Pokers extends BackendController {
     */  
     protected function buildSite() {
         switch ($this->s->action) {
+            case 'debug':
+                $range = '99+, AQs+, 74s-73s, Th6h, Tc6c, Qh5h, 9s5s, 9c5c, Qh4h, 9d4d, 9h4h, 8s4s, 8c4c, 8d3d, 8h3h, Kc2c, 4d2d, 4s2s, AQo+, Ad4s, Ah4s, As4d, As4h, As4c, Ac4s, Ad3c, Ah3c, As3c, Ac3d, Ac3h, Ac3s, Ad2h, Ad2s, Ad2c, Ah2d, As2d, Ac2d, Jd7s, Jh7s, Js7d, Js7h, 9d6s, 9h6s, 9s6d, 9s6h, 8d6c, 8h6d, 8s6h, 8c6d, 7h5d, 7h5c, 7s5c, 7c5s, 6d5s, 6h5s, 6s5d, 6c5d';
+                $content = '<h2>'.$range.'</h2>';
+                $range = explode(',', $range);
+
+                $objDeck = new PokerDeck();
+                $objDeck->shuffle();
+
+                $range = new PokerRange($range, $objDeck);
+                $cards = $range->getRandomPair();
+
+                $content .= '<p>Expanded: '.implode(', ', $range->range).'</p>';
+                $content .= '<p>Pairs: '.implode(', ', $range->pairs).'</p>';
+                $content .= '<p>Cards: '.$cards[0]->shortname().' / '.$cards[1]->shortname().'</p>';
+                parent::buildSite($content);
+                break;
             case 'play':
 				$tpl = new Template('poker');
 				$tables = PokerTable::getAll();
@@ -97,9 +113,14 @@ class Pokers extends BackendController {
                     $table->free = $table->seats - count($table->players);
 				}
 
-				$tpl->assign('tables', $tables);
-				$tpl->assign('current', ''); //current($tables));
-				$content = $tpl->fetch('games.html');
+                if (count($tables) == 0) {
+                    $content = '<h2>Keine Pokertische vorhanden. <a href="poker/poker_table-list">Pokertisch anlegen</a>?</h2>';
+                } else {
+                    $tpl->assign('tables', $tables);
+                    $tpl->assign('current', ''); //current($tables));
+                    $content = $tpl->fetch('games.html');
+                }
+				
                 parent::buildSite($content);
 				break;
             case 'show':
@@ -171,7 +192,7 @@ class Pokers extends BackendController {
         			$actions = $player->table->game->getTurnActions();
         			$rel_value = ($this->s->action == 'bet') ? $this->vars['value'] : $this->vars['value'] - $actions['bet']->params['value'];
                     $log_value = ($this->s->action == 'bet') ? $rel_value : $this->vars['value'] - $player->bet;
-        			if ($this->saveAction($player, $this->s->action, array('value' => $this->vars['value'], 'rel_value' => $rel_value, 'log_value' => $log_value))) {
+        			if ($this->saveAction($player, $this->s->action, array('value' => $this->vars['value'], 'rel_value' => $rel_value, 'own_value' => $log_value))) {
         				return true;
         			}
         		} 		
